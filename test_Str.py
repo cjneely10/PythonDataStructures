@@ -1,3 +1,4 @@
+import copy
 from unittest import TestCase
 from mutable_string import Str
 
@@ -86,3 +87,9 @@ class TestStr(TestCase):
         self.assertEqual(data[1:3], "el")
         with self.assertRaises(TypeError):
             data["k"]
+
+    def test_clone(self):
+        data = Str("Hello")
+        data_cpy = data.clone()
+        self.assertNotEqual(id(data), id(data_cpy))
+        self.assertEqual(str(data), str(data_cpy))

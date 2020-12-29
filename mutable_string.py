@@ -1,7 +1,7 @@
 """
 Module holds class functionality for mutable strings
 """
-
+import copy
 from typing import List, Union, Optional, Iterator
 
 
@@ -154,3 +154,10 @@ class Str:
             self._pos += 1
             return self._data[self._pos - 1]
         raise StopIteration
+
+    def clone(self):
+        """ Create deep copy of current string and return
+
+        :return: Deep copy of Str object
+        """
+        return copy.deepcopy(self)
