@@ -100,3 +100,12 @@ class TestStr(TestCase):
         data_cpy = data.copy()
         data_cpy[0] = "a"
         self.assertEqual(str(data_cpy), "aello")
+
+    def test_insert(self):
+        data = Str("Hello")
+        data.insert(1, "xy")
+        self.assertEqual("Hxyello", str(data))
+
+    def test_split(self):
+        data = Str("Hello world!")
+        self.assertEqual(["Hello", "world!"], data.split(" "))

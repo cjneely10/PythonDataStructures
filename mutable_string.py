@@ -86,6 +86,51 @@ class Str:
         """
         del self._data[index]
 
+    def copy(self, const: bool = False) -> "Str":
+        """ Create deep copy of current string and return
+
+        :return: Deep copy of Str object
+        """
+        prior = self._const
+        self._const = const
+        data_copy = copy.deepcopy(self)
+        self._const = prior
+        return data_copy
+
+    @handle_const
+    def insert(self, i: int, string: Union[str, "Str"]):
+        """ Insert string contents at position
+
+        :param i: Position to insert at, must be less than current size
+        :param string: str/Str to insert
+        :return:
+        """
+        assert i < len(self._data)
+        original_pos = len(self._data) - 1
+        # Make space for new string
+        for _ in range(len(string)):
+            self._data.append("")
+        # Copy over contents from original string to make space
+        new_string_pos = len(self._data) - 1
+        while original_pos >= i:
+            tmp = self._data[original_pos]
+            self._data[new_string_pos] = tmp
+            new_string_pos -= 1
+            original_pos -= 1
+        # Insert new contents
+        for char in string:
+            self._data[i] = char
+            i += 1
+
+    def split(self, *args, **kwargs) -> List[str]:
+        """ Split contents into python's str type
+
+        :param args: str.split() args
+        :param kwargs: str.split() kwargs
+        :return: List of split strings
+        """
+        return str(self).split(*args, **kwargs)
+
     def __str__(self) -> str:
         """ Get Str as str
 
@@ -186,14 +231,3 @@ class Str:
             self._pos += 1
             return self._data[self._pos - 1]
         raise StopIteration
-
-    def copy(self, const: bool = False) -> "Str":
-        """ Create deep copy of current string and return
-
-        :return: Deep copy of Str object
-        """
-        prior = self._const
-        self._const = const
-        data_copy = copy.deepcopy(self)
-        self._const = prior
-        return data_copy
