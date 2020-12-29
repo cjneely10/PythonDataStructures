@@ -9,6 +9,8 @@ class Str:
     """
 
     """
+    ERR_STRING = "Input string must be python native `str` type or another `Str` object"
+
     def __init__(self, string: Optional[Union[str, "Str"]]):
         """ Create a Str object from a python str or another Str object
         :param string: Str/str object to use to create Str, default None
@@ -19,7 +21,7 @@ class Str:
             for char in string:
                 self._data.append(char)
         else:
-            raise ValueError("Input string must be python native `str` type or another `Str` object")
+            raise TypeError(Str.ERR_STRING)
 
     def insert(self, index: Union[int, slice], value: str) -> None:
         assert index < len(self._data)
@@ -35,8 +37,8 @@ class Str:
     def extend(self, value: Union[str, "Str"]):
         self._data.extend(value.split())
 
-    def pop(self):
-        self._data.pop()
+    def pop(self) -> str:
+        return self._data.pop()
 
     def remove(self, index: Union[int, slice]):
         del self._data[index]
@@ -67,18 +69,23 @@ class Str:
 
     def __setitem__(self, i: Union[int, slice], string: str):
         assert i < len(self._data)
-        self._data[i] = string.split()
+        if isinstance(i, int):
+            self._data[i] = string
+        elif isinstance(i, slice):
+            self._data[i] = string.split()
+        else:
+            raise TypeError(Str.ERR_STRING)
 
     def __delitem__(self, i: Union[int, slice]):
         assert i < len(self._data)
         del self._data[i]
 
     def __iter__(self):
+        self._pos = 0
         return self
 
     def __next__(self):
-        self._pos += 1
         if self._pos < len(self._data):
-            return self._data[self._pos]
-        self._pos = 0
+            self._pos += 1
+            return self._data[self._pos - 1]
         raise StopIteration
