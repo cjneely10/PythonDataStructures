@@ -5,11 +5,16 @@ import copy
 from typing import List, Union, Optional, Iterator, Callable
 
 
-def handle_const(f: Callable):
+def handle_const(func: Callable):
+    """ Decorator checks if Str object is non-const reference
+
+    :param func: Str method to call
+    :return: Wrapped method that has first checked if Str is mutable
+    """
     def fxn(self, *args, **kwargs):
         if self.const:
             raise AttributeError("Cannot modify a const string!")
-        return f(self, *args, **kwargs)
+        return func(self, *args, **kwargs)
 
     return fxn
 
@@ -35,6 +40,10 @@ class Str:
 
     @property
     def const(self) -> bool:
+        """ Check if Str is const or non-const reference
+
+        :return: bool of const status
+        """
         return self._const
 
     @handle_const
@@ -183,7 +192,8 @@ class Str:
 
         :return: Deep copy of Str object
         """
-
-        cp = copy.deepcopy(self)
-        cp._const = const
-        return cp
+        prior = self._const
+        self._const = const
+        data_copy = copy.deepcopy(self)
+        self._const = prior
+        return data_copy
