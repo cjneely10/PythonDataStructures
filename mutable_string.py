@@ -155,7 +155,7 @@ class Str:
             return self._data[self._pos - 1]
         raise StopIteration
 
-    def clone(self):
+    def clone(self) -> "Str":
         """ Create deep copy of current string and return
 
         :return: Deep copy of Str object
