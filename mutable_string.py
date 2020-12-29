@@ -79,7 +79,7 @@ class Str:
         """
         return len(self._data)
 
-    def __iadd__(self, other: Union[str, "Str"]):
+    def __iadd__(self, other: Union[str, "Str"]) -> "Str":
         """ Add str/Str contents to current string
 
         :param other: Contents to add
@@ -88,7 +88,7 @@ class Str:
         self.append(other)
         return self
 
-    def __add__(self, other: Union[str, "Str"]):
+    def __add__(self, other: Union[str, "Str"]) -> "Str":
         """ Add str/Str contents to current string
 
         :param other: Contents to add
