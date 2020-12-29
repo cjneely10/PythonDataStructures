@@ -2,11 +2,11 @@
 Module holds class functionality for mutable strings
 """
 
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Iterator
 
 
 class Str:
-    """
+    """  Mutable string class, pass-by-reference internal data
 
     """
     ERR_STRING = "Input string must be python native `str` type or another `Str` object"
@@ -24,29 +24,53 @@ class Str:
             raise TypeError(Str.ERR_STRING)
 
     def append(self, value: Union[str, "Str"]):
+        """ Add str/Str contents to current string
+
+        :param value: Contents to add
+        """
         for char in value:
             self._data.append(char)
 
     def reverse(self):
+        """ Reverse contents of string
+
+        """
         self._data.reverse()
 
     def extend(self, value: Union[str, "Str"]):
-        if isinstance(value, str):
-            self._data.extend(list(value))
-        else:
-            self.append(value)
+        """ Add contents of str/Str to current string
+
+        :param value: Contents to add
+        """
+        self.append(value)
 
     def pop(self) -> str:
+        """ Pop off and return last character in string
+
+        :return: Last character in string after inner contents removed
+        """
         return self._data.pop()
 
     def remove(self, index: Union[int, slice]):
+        """ Remove index/slice of string
+
+        :param index: int/slice to remove from current string
+        """
         del self._data[index]
 
     def __str__(self) -> str:
+        """ Get Str as str
+
+        :return: Contents as str
+        """
         return "".join(self._data)
 
-    def __repr__(self):
-        return str(self)
+    def __repr__(self) -> str:
+        """ Class representation of string for repl
+
+        :return: Contents for REPL
+        """
+        return """<Str: '%s'>""" % str(self)
 
     def __len__(self) -> int:
         """ Length of string
@@ -56,16 +80,35 @@ class Str:
         return len(self._data)
 
     def __iadd__(self, other: Union[str, "Str"]):
+        """ Add str/Str contents to current string
+
+        :param other: Contents to add
+        :return: self
+        """
         self.append(other)
         return self
 
     def __add__(self, other: Union[str, "Str"]):
+        """ Add str/Str contents to current string
+
+        :param other: Contents to add
+        :return: self
+        """
         self.append(other)
         return self
 
-    def __getitem__(self, i: int) -> str:
-        assert i < len(self._data)
-        return self._data[i]
+    def __getitem__(self, i: Union[int, slice]) -> str:
+        """ Get data stored at position/slice
+
+        :param i: position
+        :return:
+        """
+        if isinstance(i, int):
+            assert i < len(self._data)
+            return self._data[i]
+        elif isinstance(i, slice):
+            return "".join(self._data[i])
+        raise TypeError(Str.ERR_STRING)
 
     def __setitem__(self, i: int, string: Union[str, "Str"]):
         assert i < len(self._data)
@@ -79,14 +122,27 @@ class Str:
             self.append(string[pos:])
 
     def __delitem__(self, i: Union[int, slice]):
-        assert i < len(self._data)
+        """ Remove contents of string at position/slice
+
+        :param i: Position/slice to remove
+        """
         del self._data[i]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
+        """ Iterate over current string
+
+        :return: Iterator
+        """
         self._pos = 0
         return self
 
-    def __next__(self):
+    def __next__(self) -> str:
+        """ Consume iterator to get next character in string
+
+        Raises StopIteration error
+
+        :return: Character in string
+        """
         if self._pos < len(self._data):
             self._pos += 1
             return self._data[self._pos - 1]

@@ -79,3 +79,10 @@ class TestStr(TestCase):
         data = Str("Hello")
         new_data = data + " " + Str("world!")
         self.assertEqual("Hello world!", str(new_data))
+
+    def test_get(self):
+        data = Str("Hello")
+        self.assertEqual(data[0], "H")
+        self.assertEqual(data[1:3], "el")
+        with self.assertRaises(TypeError):
+            data["k"]
