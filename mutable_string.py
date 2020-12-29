@@ -2,7 +2,16 @@
 Module holds class functionality for mutable strings
 """
 import copy
-from typing import List, Union, Optional, Iterator
+from typing import List, Union, Optional, Iterator, Callable
+
+
+def handle_const(f: Callable):
+    def fxn(self, *args, **kwargs):
+        if self.const:
+            raise AttributeError("Cannot modify a const string!")
+        return f(self, *args, **kwargs)
+
+    return fxn
 
 
 class Str:
@@ -11,7 +20,7 @@ class Str:
     """
     ERR_STRING = "Input string must be python native `str` type or another `Str` object"
 
-    def __init__(self, string: Optional[Union[str, "Str"]]):
+    def __init__(self, string: Optional[Union[str, "Str"]], const: bool = False):
         """ Create a Str object from a python str or another Str object
         :param string: Str/str object to use to create Str, default None
         """
@@ -22,7 +31,13 @@ class Str:
                 self._data.append(char)
         else:
             raise TypeError(Str.ERR_STRING)
+        self._const = const
 
+    @property
+    def const(self) -> bool:
+        return self._const
+
+    @handle_const
     def append(self, value: Union[str, "Str"]):
         """ Add str/Str contents to current string
 
@@ -31,12 +46,14 @@ class Str:
         for char in value:
             self._data.append(char)
 
+    @handle_const
     def reverse(self):
         """ Reverse contents of string
 
         """
         self._data.reverse()
 
+    @handle_const
     def extend(self, value: Union[str, "Str"]):
         """ Add contents of str/Str to current string
 
@@ -44,6 +61,7 @@ class Str:
         """
         self.append(value)
 
+    @handle_const
     def pop(self) -> str:
         """ Pop off and return last character in string
 
@@ -51,6 +69,7 @@ class Str:
         """
         return self._data.pop()
 
+    @handle_const
     def remove(self, index: Union[int, slice]):
         """ Remove index/slice of string
 
@@ -79,6 +98,7 @@ class Str:
         """
         return len(self._data)
 
+    @handle_const
     def __iadd__(self, other: Union[str, "Str"]) -> "Str":
         """ Add str/Str contents to current string
 
@@ -88,6 +108,7 @@ class Str:
         self.append(other)
         return self
 
+    @handle_const
     def __add__(self, other: Union[str, "Str"]) -> "Str":
         """ Add str/Str contents to current string
 
@@ -110,6 +131,7 @@ class Str:
             return "".join(self._data[i])
         raise TypeError(Str.ERR_STRING)
 
+    @handle_const
     def __setitem__(self, i: int, string: Union[str, "Str"]):
         """ Set contents of string at position/slice
 
@@ -128,6 +150,7 @@ class Str:
         if pos < len(string):
             self.append(string[pos:])
 
+    @handle_const
     def __delitem__(self, i: Union[int, slice]):
         """ Remove contents of string at position/slice
 
@@ -155,9 +178,12 @@ class Str:
             return self._data[self._pos - 1]
         raise StopIteration
 
-    def clone(self) -> "Str":
+    def copy(self, const: bool = False) -> "Str":
         """ Create deep copy of current string and return
 
         :return: Deep copy of Str object
         """
-        return copy.deepcopy(self)
+
+        cp = copy.deepcopy(self)
+        cp._const = const
+        return cp
