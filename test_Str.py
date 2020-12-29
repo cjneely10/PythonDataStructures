@@ -97,6 +97,6 @@ class TestStr(TestCase):
         data = Str("Hello", const=True)
         with self.assertRaises(AttributeError):
             data[0] = "a"
-        data_cpy = data.copy(const=False)
+        data_cpy = data.copy()
         data_cpy[0] = "a"
         self.assertEqual(str(data_cpy), "aello")
