@@ -23,10 +23,6 @@ class Str:
         else:
             raise TypeError(Str.ERR_STRING)
 
-    def insert(self, index: Union[int, slice], value: str) -> None:
-        assert index < len(self._data)
-        self._data[index] = value.split()
-
     def append(self, value: Union[str, "Str"]):
         for char in value:
             self._data.append(char)
@@ -35,7 +31,10 @@ class Str:
         self._data.reverse()
 
     def extend(self, value: Union[str, "Str"]):
-        self._data.extend(value.split())
+        if isinstance(value, str):
+            self._data.extend(list(value))
+        else:
+            self.append(value)
 
     def pop(self) -> str:
         return self._data.pop()
@@ -62,19 +61,22 @@ class Str:
 
     def __add__(self, other: Union[str, "Str"]):
         self.append(other)
+        return self
 
     def __getitem__(self, i: int) -> str:
         assert i < len(self._data)
         return self._data[i]
 
-    def __setitem__(self, i: Union[int, slice], string: str):
+    def __setitem__(self, i: int, string: Union[str, "Str"]):
         assert i < len(self._data)
-        if isinstance(i, int):
-            self._data[i] = string
-        elif isinstance(i, slice):
-            self._data[i] = string.split()
-        else:
-            raise TypeError(Str.ERR_STRING)
+        pos = 0
+        for j in range(min(len(string), len(self._data))):
+            if j + i >= len(self._data):
+                break
+            self._data[j + i] = string[pos]
+            pos += 1
+        if pos < len(string):
+            self.append(string[pos:])
 
     def __delitem__(self, i: Union[int, slice]):
         assert i < len(self._data)
