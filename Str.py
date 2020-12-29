@@ -101,7 +101,7 @@ class Str:
         """ Get data stored at position/slice
 
         :param i: position
-        :return:
+        :return: Contents at index/slice
         """
         if isinstance(i, int):
             assert i < len(self._data)
@@ -111,6 +111,13 @@ class Str:
         raise TypeError(Str.ERR_STRING)
 
     def __setitem__(self, i: int, string: Union[str, "Str"]):
+        """ Set contents of string at position/slice
+
+        Will extend size of container is `string` extends past current string boundary
+
+        :param i: Position/slice to set
+        :param string: Value to update using
+        """
         assert i < len(self._data)
         pos = 0
         for j in range(min(len(string), len(self._data))):
