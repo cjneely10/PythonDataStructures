@@ -17,7 +17,7 @@ class Str:
         """
         self._data: List[str] = []
         self._pos = 0
-        if isinstance(string, str) or isinstance(string, Str):
+        if isinstance(string, (str, Str)):
             for char in string:
                 self._data.append(char)
         else:
@@ -106,7 +106,7 @@ class Str:
         if isinstance(i, int):
             assert i < len(self._data)
             return self._data[i]
-        elif isinstance(i, slice):
+        if isinstance(i, slice):
             return "".join(self._data[i])
         raise TypeError(Str.ERR_STRING)
 
