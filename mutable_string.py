@@ -3,6 +3,7 @@ Module holds class functionality for mutable strings
 """
 import copy
 from typing import List, Union, Iterator, Callable, Type
+from type_checking import TypeChecker
 
 
 def handle_const(func: Callable):
@@ -30,6 +31,9 @@ def check_types(value: object, types: List[Type]):
         raise TypeError("Data <{}> must be of type {}".format(value, " or ".join(list(map(str, types)))))
 
 
+checker = TypeChecker()
+
+
 class Str:
     """ Mutable string class, pass-by-reference internal data
 
@@ -41,12 +45,11 @@ class Str:
     """
     ERR_STRING = "Input string must be python native `str` type or another `Str` object"
 
+    @checker.check_types
     def __init__(self, string: Union[str, "Str"], const: bool = False):
         """ Create a Str object from a python str or another Str object
         :param string: Str/str object to use to create Str, default None
         """
-        check_types(string, [str, Str])
-        check_types(const, [bool])
         if isinstance(string, (str, Str)):
             self._data: List[str] = []
             self._pos = 0
@@ -65,12 +68,12 @@ class Str:
         return self._const
 
     @handle_const
+    @checker.check_types
     def append(self, value: Union[str, "Str"]):
         """ Add str/Str contents to current string
 
         :param value: Contents to add
         """
-        check_types(value, [str, Str])
         for char in value:
             self._data.append(char)
 
@@ -82,12 +85,12 @@ class Str:
         self._data.reverse()
 
     @handle_const
+    @checker.check_types
     def extend(self, value: Union[str, "Str"]):
         """ Add contents of str/Str to current string
 
         :param value: Contents to add
         """
-        check_types(value, [str, Str])
         self.append(value)
 
     @handle_const
@@ -99,21 +102,21 @@ class Str:
         return self._data.pop()
 
     @handle_const
+    @checker.check_types
     def remove(self, index: Union[int, slice]):
         """ Remove index/slice of string
 
         :param index: int/slice to remove from current string
         """
-        check_types(index, [int, slice])
         del self._data[index]
 
+    @checker.check_types
     def copy(self, const: bool = False) -> "Str":
         """ Create deep copy of current string and returns new Str object
         Assigns const status to newly created string
 
         :return: Deep copy of Str object
         """
-        check_types(const, [bool])
         prior = self._const
         self._const = const
         data_copy = copy.deepcopy(self)
@@ -121,6 +124,7 @@ class Str:
         return data_copy
 
     @handle_const
+    @checker.check_types
     def insert(self, i: int, string: Union[str, "Str"]):
         """ Insert string contents at position. Does not support negative indexing
 
@@ -128,8 +132,6 @@ class Str:
         :param string: str/Str to insert
         :return:
         """
-        check_types(i, [int])
-        check_types(string, [str, Str])
         assert 0 <= i < len(self._data)
         original_pos = len(self._data) - 1
         # Make space for new string
@@ -184,38 +186,39 @@ class Str:
         return len(self._data)
 
     @handle_const
+    @checker.check_types
     def __iadd__(self, other: Union[str, "Str"]) -> "Str":
         """ Add str/Str contents to current string
 
         :param other: Contents to add
         :return: self
         """
-        check_types(other, [str, Str])
         self.append(other)
         return self
 
     @handle_const
+    @checker.check_types
     def __add__(self, other: Union[str, "Str"]) -> "Str":
         """ Add str/Str contents to current string
 
         :param other: Contents to add
         :return: self
         """
-        check_types(other, [str, Str])
         out = Str(self)
         out.append(other)
         return out
 
+    @checker.check_types
     def __getitem__(self, i: Union[int, slice]) -> str:
         """ Get data stored at position/slice
 
         :param i: position
         :return: Contents at index/slice
         """
-        check_types(i, [int, slice])
         return "".join(self._data[i])
 
     @handle_const
+    @checker.check_types
     def __setitem__(self, i: Union[int, slice], string: Union[str, "Str"]):
         """ Set contents of string at position/slice
 
@@ -224,8 +227,6 @@ class Str:
         :param i: Position/slice to set, 0 : len(self)
         :param string: Value to update using
         """
-        check_types(i, [int, slice])
-        check_types(string, [str, Str])
         if isinstance(i, slice):
             self._data[i] = string.split()
             return
@@ -240,12 +241,12 @@ class Str:
             self.append(string[pos:])
 
     @handle_const
+    @checker.check_types
     def __delitem__(self, i: Union[int, slice]):
         """ Remove contents of string at position/slice
 
         :param i: Position/slice to remove
         """
-        check_types(i, [int, slice])
         del self._data[i]
 
     def __iter__(self) -> Iterator:
@@ -268,13 +269,13 @@ class Str:
             return self._data[self._pos - 1]
         raise StopIteration
 
+    @checker.check_types
     def __eq__(self, other: Union[str, "Str"]) -> bool:
         """ Compares if two Str objects contain the same data
 
         :param other: Other Str
         :return: Comparison if contents are identical
         """
-        check_types(other, [str, Str])
         if len(self) != len(other):
             return False
         for char_i, char_j in zip(self, other):
@@ -282,22 +283,22 @@ class Str:
                 return False
         return True
 
+    @checker.check_types
     def __ne__(self, other: Union[str, "Str"]) -> bool:
         """ Compares if two Str objects don't contain the same data
 
         :param other: Other Str/str
         :return: Comparison if contents are not identical
         """
-        check_types(other, [str, Str])
         return not self.__eq__(other)
 
+    @checker.check_types
     def __lt__(self, other: Union[str, "Str"]) -> bool:
         """ Compare strings for lexicographically smaller value
 
         :param other: Other Str/str to compare
         :return: Comparison if self is less than other
         """
-        check_types(other, [str, Str])
         if len(self) < len(other):
             return True
         elif len(self) >= len(other):
