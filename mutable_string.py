@@ -36,14 +36,11 @@ class Str:
         """ Create a Str object from a python str or another Str object
         :param string: Str/str object to use to create Str, default None
         """
-        if isinstance(string, (str, Str)):
-            self._data: List[str] = []
-            self._pos = 0
-            for char in string:
-                self._data.append(char)
-            self._const = const
-        else:
-            raise TypeError(Str.ERR_STRING)
+        self._data: List[str] = []
+        self._pos = 0
+        for char in string:
+            self._data.append(char)
+        self._const = const
 
     @property
     def const(self) -> bool:
