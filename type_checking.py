@@ -11,13 +11,14 @@ class TypeChecker:
     Class TypeChecker has simple decorator method to check if function has been called with specified parameters
     and to handle type checking if not yet called
     """
-    # Cache
-    _checked: Set[int] = set()
     # Default error string
     ERR_STR = "Data {}\nmust be of type {}"
 
-    @staticmethod
-    def check_types(func: Callable):
+    def __init__(self):
+        # Cache
+        self._checked: Set[int] = set()
+
+    def check_types(self, func: Callable):
         """ Check if types of args/kwargs passed to function/method are valid for provided type signatures
 
         :param func: Called function/method
@@ -27,10 +28,10 @@ class TypeChecker:
             # Get passed args as dict
             passed_args = inspect.signature(func).bind(*args, **kwargs).arguments
             # Check cache
-            if TypeChecker._is_cached(id(passed_args)):
+            if self._is_cached(id(passed_args)):
                 return func(*args, **kwargs)
             # Add to cache
-            TypeChecker._checked.add(id(passed_args))
+            self._checked.add(id(passed_args))
             # Get allowed types of f
             specified_types = get_type_hints(func)
             for arg_name, arg_type in specified_types.items():
@@ -48,14 +49,13 @@ class TypeChecker:
 
         return fxn
 
-    @staticmethod
-    def _is_cached(_id: int) -> bool:
+    def _is_cached(self, _id: int) -> bool:
         """ Check if arguments dictionary id is already cached
 
         :param _id: id of arguments parsed to dict
         :return: In-cache status
         """
-        return _id in TypeChecker._checked
+        return _id in self._checked
 
     @staticmethod
     def _check_union(arg_type: Union, passed_value: object) -> bool:
@@ -65,7 +65,7 @@ class TypeChecker:
         :param passed_value: type of argument passed
         :return: Status if passed_value is valid based on contents of Union
         """
-        for avail_arg in arg_type.__args__:
-            if isinstance(passed_value, avail_arg):
+        for avail_arg_type in arg_type.__args__:
+            if type(passed_value) == avail_arg_type:
                 return True
         return False
