@@ -5,7 +5,6 @@ from type_checking import TypeChecker
 
 class Test(TestCase):
     def test_check_proper_types(self):
-
         @TypeChecker.check_types
         def simple(val5: int, val2: float, val3: Optional[str]):
             pass
@@ -17,11 +16,10 @@ class Test(TestCase):
         self.assertTrue(True)
 
     def test_check_improper_types(self):
-
         @TypeChecker.check_types
         def simple(val: int, val2: float, val3: str):
             pass
 
         with self.assertRaises(TypeError):
-            simple("one", 2.0, "3")
+            simple("one", 2.0, 3)
 

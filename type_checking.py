@@ -28,12 +28,10 @@ class TypeChecker:
             passed_args = inspect.signature(func).bind(*args, **kwargs).arguments
             # Check cache
             if TypeChecker._is_cached(id(passed_args)):
-                print("Using cache...")
                 return func(*args, **kwargs)
             # Add to cache
             TypeChecker._checked.add(id(passed_args))
             # Get allowed types of f
-            print("Checking types...")
             specified_types = get_type_hints(func)
             for arg_name, arg_type in specified_types.items():
                 # Type may be a Union
