@@ -296,14 +296,11 @@ class Str:
         """
         if len(self) < len(other):
             return True
-        elif len(self) >= len(other):
+        if len(self) >= len(other):
             return False
         for char_i, char_j in zip(self, other):
             if char_i != char_j:
-                if char_i < char_j:
-                    return True
-                else:
-                    return False
+                return char_i < char_j
         return False
 
     def __hash__(self) -> id:

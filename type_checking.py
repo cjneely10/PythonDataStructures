@@ -38,7 +38,7 @@ class TypeChecker:
                         )
                 # Type is a non-Union
                 else:
-                    if not type(passed_args[arg_name]) == arg_type:
+                    if not isinstance(passed_args[arg_name], arg_type):
                         raise TypeError(TypeChecker.ERR_STR.format(arg_name, " or ".join(list(map(str, arg_type)))))
             return func(*args, **kwargs)
 
@@ -53,6 +53,6 @@ class TypeChecker:
         :return: Status if passed_value is valid based on contents of Union
         """
         for avail_arg_type in arg_type.__args__:
-            if type(passed_value) == avail_arg_type:
+            if isinstance(passed_value, avail_arg_type):
                 return True
         return False
