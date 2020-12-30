@@ -36,6 +36,8 @@ class Str:
     Pass by "const reference" ensures that inner data is not mutated, but does no further
     optimization than the standard Python pass-by-reference
 
+    Constructor inherently is deep copy-constructor
+
     """
     ERR_STRING = "Input string must be python native `str` type or another `Str` object"
 
