@@ -1,10 +1,10 @@
-from typing import Optional, Union, List
+from typing import Optional
 from unittest import TestCase
 from type_checking import TypeChecker
 
 
 class Test(TestCase):
-    def test_check_types(self):
+    def test_check_proper_types(self):
 
         @TypeChecker.check_types
         def simple(val5: int, val2: float, val3: Optional[str]):
@@ -15,3 +15,13 @@ class Test(TestCase):
         simple(1, 4.0, None)
 
         self.assertTrue(True)
+
+    def test_check_improper_types(self):
+
+        @TypeChecker.check_types
+        def simple(val: int, val2: float, val3: str):
+            pass
+
+        with self.assertRaises(TypeError):
+            simple("one", 2.0, "3")
+

@@ -14,23 +14,27 @@ class TypeChecker:
     # Cache
     _checked: Set[int] = set()
     # Default error string
-    ERR_STR = "Data <{}>\nmust be of type {}"
+    ERR_STR = "Data {}\nmust be of type {}"
 
     @staticmethod
-    def check_types(f: Callable):
+    def check_types(func: Callable):
         """ Check if types of args/kwargs passed to function/method are valid for provided type signatures
 
-        :param f: Called function/method
-        :return: Decorated functino/method. Raises TypeError if improper type/arg combination is found
+        :param func: Called function/method
+        :return: Decorated function/method. Raises TypeError if improper type/arg combination is found
         """
-        def func(self, *args, **kwargs):
+        def fxn(*args, **kwargs):
             # Get passed args as dict
-            passed_args = inspect.signature(f).bind(self, *args, **kwargs).arguments
+            passed_args = inspect.signature(func).bind(*args, **kwargs).arguments
             # Check cache
             if TypeChecker._is_cached(id(passed_args)):
-                return f(self, *args, **kwargs)
+                print("Using cache...")
+                return func(*args, **kwargs)
+            # Add to cache
+            TypeChecker._checked.add(id(passed_args))
             # Get allowed types of f
-            specified_types = get_type_hints(f)
+            print("Checking types...")
+            specified_types = get_type_hints(func)
             for arg_name, arg_type in specified_types.items():
                 # Type may be a Union
                 if getattr(arg_type, "__args__", None) is not None:
@@ -42,10 +46,9 @@ class TypeChecker:
                 else:
                     if not isinstance(passed_args[arg_name], arg_type):
                         raise TypeError(TypeChecker.ERR_STR.format(arg_name, " or ".join(list(map(str, arg_type)))))
-            TypeChecker._checked.add(id(passed_args))
-            return f(self, *args, **kwargs)
+            return func(*args, **kwargs)
 
-        return func
+        return fxn
 
     @staticmethod
     def _is_cached(_id: int) -> bool:
