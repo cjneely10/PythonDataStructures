@@ -49,8 +49,10 @@ class TestStr(TestCase):
         for data_char, val_char in zip(data_string, val):
             self.assertEqual(data_char, val_char)
 
-    def test_mutable(self):
+    def test_mutable_reference(self):
         data = Str("Hello world!")
+        data2 = data
+        data3 = data.copy()
 
         def simple(d: Str):
             d[0] = "a"
@@ -59,6 +61,8 @@ class TestStr(TestCase):
         self.assertEqual(id(data), id(simple(data)))
         self.assertEqual(data[0], 'a')
         self.assertEqual(str(data), "aello world!")
+        self.assertEqual(str(data2), "aello world!")
+        self.assertEqual(str(data3), "Hello world!")
 
     def test_setitem(self):
         data = Str("Hello world!")

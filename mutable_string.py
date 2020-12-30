@@ -147,7 +147,7 @@ class Str:
 
         :return: Contents for REPL
         """
-        return """<Str: '%s'>""" % str(self)
+        return "".join(self._data)
 
     def __len__(self) -> int:
         """ Length of string
