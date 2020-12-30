@@ -85,6 +85,7 @@ class TestStr(TestCase):
         data = Str("Hello")
         new_data = data + " " + Str("world!")
         self.assertEqual("Hello world!", str(new_data))
+        self.assertEqual("Hello", str(data))
 
     def test_get(self):
         data = Str("Hello")
@@ -125,3 +126,10 @@ class TestStr(TestCase):
         data = Str("Hello world!")
         data2 = Str(data)
         self.assertNotEqual(id(data), id(data2))
+
+    def test_typing(self):
+        data = Str("Hello world!")
+        data.append("value")
+        data.append(Str("value"))
+        with self.assertRaises(TypeError):
+            data.append(["value"])

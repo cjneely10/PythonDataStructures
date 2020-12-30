@@ -2,7 +2,13 @@
 Module holds class functionality for mutable strings
 """
 import copy
-from typing import List, Union, Iterator, Callable
+from typing import List, Union, Iterator, Callable, Type
+
+try:
+    from typing import ForwardRef  # type: ignore
+except ImportError:
+    # python 3.6
+    from typing import _ForwardRef as ForwardRef
 
 
 def handle_const(func: Callable):
@@ -19,6 +25,11 @@ def handle_const(func: Callable):
     return fxn
 
 
+def check_types(value: object, types: List[Type]):
+    if not isinstance(value, tuple(types)):
+        raise TypeError("'{}' must be of type {}".format(value, types))
+
+
 class Str:
     """ Mutable string class, pass-by-reference internal data
 
@@ -32,14 +43,16 @@ class Str:
         """ Create a Str object from a python str or another Str object
         :param string: Str/str object to use to create Str, default None
         """
-        self._data: List[str] = []
-        self._pos = 0
+        check_types(string, [str, Str])
+        check_types(const, [bool])
         if isinstance(string, (str, Str)):
+            self._data: List[str] = []
+            self._pos = 0
             for char in string:
                 self._data.append(char)
+            self._const = const
         else:
             raise TypeError(Str.ERR_STRING)
-        self._const = const
 
     @property
     def const(self) -> bool:
@@ -55,6 +68,7 @@ class Str:
 
         :param value: Contents to add
         """
+        check_types(value, [str, Str])
         for char in value:
             self._data.append(char)
 
@@ -71,6 +85,7 @@ class Str:
 
         :param value: Contents to add
         """
+        check_types(value, [str, Str])
         self.append(value)
 
     @handle_const
@@ -87,6 +102,7 @@ class Str:
 
         :param index: int/slice to remove from current string
         """
+        check_types(index, [int, slice])
         del self._data[index]
 
     def copy(self, const: bool = False) -> "Str":
@@ -95,6 +111,7 @@ class Str:
 
         :return: Deep copy of Str object
         """
+        check_types(const, [bool])
         prior = self._const
         self._const = const
         data_copy = copy.deepcopy(self)
@@ -109,6 +126,8 @@ class Str:
         :param string: str/Str to insert
         :return:
         """
+        check_types(i, [int])
+        check_types(string, [str, Str])
         assert 0 <= i < len(self._data)
         original_pos = len(self._data) - 1
         # Make space for new string
@@ -134,6 +153,12 @@ class Str:
         :return: List of split strings
         """
         return str(self).split(*args, **kwargs)
+
+    def set_const(self):
+        """ Sets const status of owned object to True
+
+        """
+        self._const = True
 
     def __str__(self) -> str:
         """ Get Str as str
@@ -163,6 +188,7 @@ class Str:
         :param other: Contents to add
         :return: self
         """
+        check_types(other, [str, Str])
         self.append(other)
         return self
 
@@ -173,8 +199,10 @@ class Str:
         :param other: Contents to add
         :return: self
         """
-        self.append(other)
-        return self
+        check_types(other, [str, Str])
+        out = Str(self)
+        out.append(other)
+        return out
 
     def __getitem__(self, i: Union[int, slice]) -> str:
         """ Get data stored at position/slice
@@ -182,6 +210,7 @@ class Str:
         :param i: position
         :return: Contents at index/slice
         """
+        check_types(i, [int, slice])
         return "".join(self._data[i])
 
     @handle_const
@@ -193,6 +222,8 @@ class Str:
         :param i: Position/slice to set, 0 : len(self)
         :param string: Value to update using
         """
+        check_types(i, [int, slice])
+        check_types(string, [str, Str])
         if isinstance(i, slice):
             self._data[i] = string.split()
             return
@@ -212,6 +243,7 @@ class Str:
 
         :param i: Position/slice to remove
         """
+        check_types(i, [int, slice])
         del self._data[i]
 
     def __iter__(self) -> Iterator:
@@ -233,3 +265,40 @@ class Str:
             self._pos += 1
             return self._data[self._pos - 1]
         raise StopIteration
+
+    def __eq__(self, other: Union[str, "Str"]) -> bool:
+        """ Compares if two Str objects contain the same data
+
+        :param other: Other Str
+        :return: Comparison if contents are identical
+        """
+        check_types(other, [str, Str])
+        if len(self) != len(other):
+            return False
+        for char_i, char_j in zip(self, other):
+            if char_i != char_j:
+                return False
+        return True
+
+    def __ne__(self, other: Union[str, "Str"]) -> bool:
+        """ Compares if two Str objects don't contain the same data
+
+        :param other: Other Str
+        :return: Comparison if contents are not identical
+        """
+        check_types(other, [str, Str])
+        return not self.__eq__(other)
+
+    def __lt__(self, other: Union[str, "Str"]) -> bool:
+        check_types(other, [str, Str])
+        if len(self) < len(other):
+            return True
+        elif len(self) >= len(other):
+            return False
+        for char_i, char_j in zip(self, other):
+            if char_i != char_j:
+                if char_i < char_j:
+                    return True
+                else:
+                    return False
+        return False
