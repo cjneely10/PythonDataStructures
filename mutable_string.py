@@ -307,3 +307,12 @@ class Str:
                 else:
                     return False
         return False
+
+    def format(self, *args, **kwargs) -> "Str":
+        """ Mimic str class format function
+
+        :param args: kwargs to format
+        :param kwargs: kwargs to format
+        :return: Formatted Str object
+        """
+        return Str("".join(self._data).format(*args, **kwargs))
