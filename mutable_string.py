@@ -4,12 +4,6 @@ Module holds class functionality for mutable strings
 import copy
 from typing import List, Union, Iterator, Callable, Type
 
-try:
-    from typing import ForwardRef  # type: ignore
-except ImportError:
-    # python 3.6
-    from typing import _ForwardRef as ForwardRef
-
 
 def handle_const(func: Callable):
     """ Decorator checks if Str object is non-const reference
