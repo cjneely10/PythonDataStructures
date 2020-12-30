@@ -2,7 +2,7 @@
 Module holds class functionality for mutable strings
 """
 import copy
-from typing import List, Union, Iterator, Callable, Type
+from typing import List, Union, Iterator, Callable
 from type_checking import TypeChecker
 
 
