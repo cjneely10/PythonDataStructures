@@ -97,7 +97,7 @@ class TestStr(TestCase):
 
     def test_const_attribute(self):
         data = Str("Hello", const=True)
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(TypeError):
             data[0] = "a"
         data_cpy = data.copy()
         data_cpy[0] = "a"

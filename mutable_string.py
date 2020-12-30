@@ -13,7 +13,7 @@ def handle_const(func: Callable):
     """
     def fxn(self, *args, **kwargs):
         if self.const:
-            raise AttributeError("Cannot modify a const string")
+            raise TypeError("'Str' const object cannot be modified")
         return func(self, *args, **kwargs)
 
     return fxn
