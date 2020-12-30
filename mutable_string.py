@@ -185,7 +185,7 @@ class Str:
         return "".join(self._data[i])
 
     @handle_const
-    def __setitem__(self, i: int, string: Union[str, "Str"]):
+    def __setitem__(self, i: Union[int, slice], string: Union[str, "Str"]):
         """ Set contents of string at position/slice
 
         Will extend size of container is `string` extends past current string boundary
@@ -193,6 +193,9 @@ class Str:
         :param i: Position/slice to set, 0 : len(self)
         :param string: Value to update using
         """
+        if isinstance(i, slice):
+            self._data[i] = string.split()
+            return
         assert 0 <= i < len(self._data)
         pos = 0
         for j in range(min(len(string), len(self._data))):
