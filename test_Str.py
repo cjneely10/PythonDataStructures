@@ -137,3 +137,23 @@ class TestStr(TestCase):
     def test_format(self):
         data = Str("Hello {}!")
         self.assertEqual(Str("Hello world!"), data.format("world"))
+
+    def test_set_const(self):
+        data = Str("Hello!")
+        data.set_const()
+        with self.assertRaises(TypeError):
+            data[0] = "a"
+
+    def test_equality(self):
+        data = Str("Hello!")
+        data2 = Str("Hello!")
+        self.assertEqual(data, data2)
+        data2.append("1")
+        self.assertNotEqual(data, data2)
+        self.assertTrue(data < data2)
+        self.assertFalse(data2 < data)
+        data3 = Str("Heyyo!")
+        # print(data, data3)
+        self.assertTrue(data < data3)
+        self.assertFalse(data < data)
+        self.assertEqual(data, data)

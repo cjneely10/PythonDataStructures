@@ -268,6 +268,8 @@ class Str:
         :param other: Other Str
         :return: Comparison if contents are identical
         """
+        if id(self) == id(other):
+            return True
         if len(self) != len(other):
             return False
         for char_i, char_j in zip(self, other):
@@ -291,14 +293,9 @@ class Str:
         :param other: Other Str/str to compare
         :return: Comparison if self is less than other
         """
-        if len(self) < len(other):
-            return True
-        if len(self) >= len(other):
+        if id(self) == id(other):
             return False
-        for char_i, char_j in zip(self, other):
-            if char_i != char_j:
-                return char_i < char_j
-        return False
+        return str(self) < str(other)
 
     def __hash__(self) -> id:
         """ Provide hash overload
