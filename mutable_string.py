@@ -2,7 +2,7 @@
 Module holds class functionality for mutable strings
 """
 import copy
-from typing import List, Union, Optional, Iterator, Callable
+from typing import List, Union, Iterator, Callable
 
 
 def handle_const(func: Callable):
@@ -13,19 +13,22 @@ def handle_const(func: Callable):
     """
     def fxn(self, *args, **kwargs):
         if self.const:
-            raise AttributeError("Cannot modify a const string!")
+            raise AttributeError("Cannot modify a const string")
         return func(self, *args, **kwargs)
 
     return fxn
 
 
 class Str:
-    """  Mutable string class, pass-by-reference internal data
+    """ Mutable string class, pass-by-reference internal data
+
+    Pass by "const reference" ensures that inner data is not mutated, but does no further
+    optimization than the standard Python pass-by-reference
 
     """
     ERR_STRING = "Input string must be python native `str` type or another `Str` object"
 
-    def __init__(self, string: Optional[Union[str, "Str"]], const: bool = False):
+    def __init__(self, string: Union[str, "Str"], const: bool = False):
         """ Create a Str object from a python str or another Str object
         :param string: Str/str object to use to create Str, default None
         """
@@ -87,7 +90,8 @@ class Str:
         del self._data[index]
 
     def copy(self, const: bool = False) -> "Str":
-        """ Create deep copy of current string and return
+        """ Create deep copy of current string and returns new Str object
+        Assigns const status to newly created string
 
         :return: Deep copy of Str object
         """
@@ -99,13 +103,13 @@ class Str:
 
     @handle_const
     def insert(self, i: int, string: Union[str, "Str"]):
-        """ Insert string contents at position
+        """ Insert string contents at position. Does not support negative indexing
 
-        :param i: Position to insert at, must be less than current size
+        :param i: Position to insert at, must be less than current size and >= 0
         :param string: str/Str to insert
         :return:
         """
-        assert i < len(self._data)
+        assert 0 <= i < len(self._data)
         original_pos = len(self._data) - 1
         # Make space for new string
         for _ in range(len(string)):
@@ -178,12 +182,7 @@ class Str:
         :param i: position
         :return: Contents at index/slice
         """
-        if isinstance(i, int):
-            assert i < len(self._data)
-            return self._data[i]
-        if isinstance(i, slice):
-            return "".join(self._data[i])
-        raise TypeError(Str.ERR_STRING)
+        return "".join(self._data[i])
 
     @handle_const
     def __setitem__(self, i: int, string: Union[str, "Str"]):
@@ -191,10 +190,10 @@ class Str:
 
         Will extend size of container is `string` extends past current string boundary
 
-        :param i: Position/slice to set
+        :param i: Position/slice to set, 0 : len(self)
         :param string: Value to update using
         """
-        assert i < len(self._data)
+        assert 0 <= i < len(self._data)
         pos = 0
         for j in range(min(len(string), len(self._data))):
             if j + i >= len(self._data):

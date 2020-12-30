@@ -36,6 +36,8 @@ class TestStr(TestCase):
         self.assertEqual(str(val), "Hllo world!")
         val.remove(slice(1, 3))
         self.assertEqual(str(val), "Ho world!")
+        del val[0:3]
+        self.assertEqual(str(val), "world!")
 
     def test_improper_type(self):
         with self.assertRaises(TypeError):
