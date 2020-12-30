@@ -116,3 +116,8 @@ class TestStr(TestCase):
         data = Str("Hello world!")
         data[3:3] = "one"
         self.assertEqual("Helonelo world!", str(data))
+
+    def test_copy_constructor(self):
+        data = Str("Hello world!")
+        data2 = Str(data)
+        self.assertNotEqual(id(data), id(data2))
