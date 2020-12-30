@@ -1,6 +1,7 @@
 from typing import Optional
 from unittest import TestCase
 from type_checking import TypeChecker
+from mutable_string import Str
 
 
 class Test(TestCase):
@@ -23,3 +24,11 @@ class Test(TestCase):
         with self.assertRaises(TypeError):
             simple("one", 2.0, 3)
 
+    def test_user_class(self):
+        @TypeChecker.check_types
+        def simple(val: Str):
+            pass
+
+        simple(Str("val"))
+
+        self.assertTrue(True)
