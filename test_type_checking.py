@@ -48,3 +48,43 @@ class Test(TestCase):
 
         with self.assertRaises(TypeError):
             simple([Str("val")])
+
+    def test_bad_return(self):
+        checker = TypeChecker()
+
+        @checker.check_types
+        def simple(val: Union[str, Str]) -> str:
+            return int(val)
+
+        with self.assertRaises(TypeError):
+            simple("1")
+
+    def test_good_return(self):
+        checker = TypeChecker()
+
+        @checker.check_types
+        def simple(val: Union[str, Str]) -> str:
+            return val
+
+        simple("1")
+        self.assertTrue(True)
+
+    def test_return_union(self):
+        checker = TypeChecker()
+
+        @checker.check_types
+        def simple(val: Union[str, Str]) -> Optional[str]:
+            return val
+
+        simple("1")
+        self.assertTrue(True)
+
+    def test_return_bad_union(self):
+        checker = TypeChecker()
+
+        @checker.check_types
+        def simple(val: Union[str, Str]) -> Union[str, float]:
+            return int(val)
+
+        with self.assertRaises(TypeError):
+            simple("1")

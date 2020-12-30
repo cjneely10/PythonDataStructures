@@ -3,7 +3,7 @@ Module holds class TypeChecker for simple function type check at runtime prior t
 """
 import inspect
 from functools import lru_cache
-from typing import get_type_hints, Callable, Union
+from typing import get_type_hints, Callable, Union, Dict
 
 
 class TypeChecker:
@@ -30,17 +30,19 @@ class TypeChecker:
             for arg_name, arg_type in specified_types.items():
                 if arg_name not in passed_args.keys():
                     continue
-                # Type may be a Union
+                TypeChecker._check_type(arg_type, arg_name, passed_args)
+            output = func(*args, **kwargs)
+            if "return" in specified_types.keys():
+                arg_type = specified_types["return"]
                 if getattr(arg_type, "__args__", None) is not None:
-                    if not TypeChecker._check_union(arg_type, passed_args[arg_name]):
-                        raise TypeError(
-                            TypeChecker.ERR_STR.format(arg_name, " or ".join(list(map(str, arg_type.__args__))))
-                        )
-                # Type is a non-Union
+                    if not TypeChecker._check_union(arg_type, output):
+                        raise TypeError("return type does not match {}".format(" or ".join(list(map(str, arg_type)))))
+                    # Type is a non-Union
                 else:
-                    if not isinstance(passed_args[arg_name], arg_type):
-                        raise TypeError(TypeChecker.ERR_STR.format(arg_name, " or ".join(list(map(str, arg_type)))))
-            return func(*args, **kwargs)
+                    if not isinstance(output, arg_type):
+                        raise TypeError("return type does not match {}".format(" or ".join(list(map(str, arg_type)))))
+
+            return output
 
         return fxn
 
@@ -56,3 +58,16 @@ class TypeChecker:
             if isinstance(passed_value, avail_arg_type):
                 return True
         return False
+
+    @staticmethod
+    def _check_type(arg_type, arg_name: str, passed_args: Dict):
+        # Type may be a Union
+        if getattr(arg_type, "__args__", None) is not None:
+            if not TypeChecker._check_union(arg_type, passed_args[arg_name]):
+                raise TypeError(
+                    TypeChecker.ERR_STR.format(arg_name, " or ".join(list(map(str, arg_type.__args__))))
+                )
+        # Type is a non-Union
+        else:
+            if not isinstance(passed_args[arg_name], arg_type):
+                raise TypeError(TypeChecker.ERR_STR.format(arg_name, " or ".join(list(map(str, arg_type)))))
