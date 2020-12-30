@@ -27,7 +27,7 @@ def check_types(value: object, types: List[Type]):
     :return:
     """
     if not isinstance(value, tuple(types)):
-        raise TypeError("'{}' must be of type {}".format(value, types))
+        raise TypeError("Data <{}> must be of type {}".format(value, " or ".join(list(map(str, types)))))
 
 
 class Str:
