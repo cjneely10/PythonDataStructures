@@ -20,17 +20,6 @@ def handle_const(func: Callable):
     return fxn
 
 
-def check_types(value: object, types: List[Type]):
-    """ Simple type checking function against list of possible types
-
-    :param value: Object to check
-    :param types: List of acceptable types
-    :return:
-    """
-    if not isinstance(value, tuple(types)):
-        raise TypeError("Data <{}> must be of type {}".format(value, " or ".join(list(map(str, types)))))
-
-
 class Str:
     """ Mutable string class, pass-by-reference internal data
 
