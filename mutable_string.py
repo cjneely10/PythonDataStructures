@@ -283,13 +283,18 @@ class Str:
     def __ne__(self, other: Union[str, "Str"]) -> bool:
         """ Compares if two Str objects don't contain the same data
 
-        :param other: Other Str
+        :param other: Other Str/str
         :return: Comparison if contents are not identical
         """
         check_types(other, [str, Str])
         return not self.__eq__(other)
 
     def __lt__(self, other: Union[str, "Str"]) -> bool:
+        """ Compare strings for lexicographically smaller value
+
+        :param other: Other Str/str to compare
+        :return: Comparison if self is less than other
+        """
         check_types(other, [str, Str])
         if len(self) < len(other):
             return True
