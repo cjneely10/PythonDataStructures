@@ -2,9 +2,10 @@
 Module holds class TypeChecker for simple function type check at runtime prior to function call
 """
 import inspect
-from typing import get_type_hints, Callable, Set, Type, Union
+from typing import get_type_hints, Callable, Set, Union
 
 
+# TODO: Handle ForwardRef
 class TypeChecker:
     """
     Class TypeChecker has simple decorator method to check if function has been called with specified parameters
@@ -56,7 +57,13 @@ class TypeChecker:
         return _id in TypeChecker._checked
 
     @staticmethod
-    def _check_union(arg_type: Union, passed_value: object):
+    def _check_union(arg_type: Union, passed_value: object) -> bool:
+        """ Check Union type annotation to see if passed value is one of the specified types
+
+        :param arg_type: Union annotation
+        :param passed_value: type of argument passed
+        :return: Status if passed_value is valid based on contents of Union
+        """
         for avail_arg in arg_type.__args__:
             if isinstance(passed_value, avail_arg):
                 return True
