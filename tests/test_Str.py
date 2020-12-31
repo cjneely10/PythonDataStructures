@@ -149,3 +149,10 @@ class TestStr(TestCase):
         self.assertTrue(data < data3)
         self.assertFalse(data < data)
         self.assertEqual(data, data)
+        self.assertNotEqual(data, data3)
+
+    def test_repr(self):
+        self.assertEqual(str(Str("val")), repr(Str("val")))
+
+    def test_hash_collision(self):
+        self.assertEqual(hash(Str("val")), hash(Str("val")))
