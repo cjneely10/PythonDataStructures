@@ -10,6 +10,7 @@ def handle_const(func: Callable):
     """ Decorator checks if Str object is non-const reference
 
     :param func: Str method to call
+    :raises: TypeError for attempt to modify const value
     :return: Wrapped method that has first checked if Str is mutable
     """
     def fxn(self, *args, **kwargs):
@@ -35,6 +36,7 @@ class Str:
         """ Create a Str object from a python str or another Str object
 
         :param string: Str/str object to use to create Str, default None
+        :raises: TypeError for non str/Str type passed
         """
         if isinstance(string, (str, Str)):
             self._data: List[str] = []
@@ -116,7 +118,7 @@ class Str:
 
         :param i: Position to insert at, must be less than current size and >= 0
         :param string: str/Str to insert
-        :return:
+        :raises: AssertionError for negative or out-of-bounds indices
         """
         assert 0 <= i < len(self._data)
         original_pos = len(self._data) - 1
@@ -221,6 +223,7 @@ class Str:
 
         :param i: Position/slice to set, 0 : len(self)
         :param string: Value to update using
+        :raises: AssertionError for negative or out-of-bounds indices
         """
         if isinstance(i, slice):
             self._data[i] = string.split()
@@ -255,8 +258,7 @@ class Str:
     def __next__(self) -> str:
         """ Consume iterator to get next character in string
 
-        Raises StopIteration error
-
+        :raises: StopIteration error
         :return: Character in string
         """
         if self._pos < len(self._data):

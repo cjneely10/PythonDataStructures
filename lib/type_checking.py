@@ -20,6 +20,7 @@ class TypeChecker:
         """ Check if types of args/kwargs passed to function/method are valid for provided type signatures
 
         :param func: Called function/method
+        :raises: TypeError for improper arg/kwarg type combinations
         :return: Decorated function/method. Raises TypeError if improper type/arg combination is found
         """
 
@@ -76,6 +77,7 @@ class TypeChecker:
 
         :param specified_types: Dictionary of annotated types
         :param output: Function call output
+        :raises: TypeError for improper arg/kwarg type combinations
         """
         arg_type = specified_types["return"]
         if getattr(arg_type, "__args__", None) is not None:
@@ -92,6 +94,7 @@ class TypeChecker:
         :param arg_type: Type expected
         :param arg_name: Name of argument
         :param passed_args: Argument:Value dictionary
+        :raises: TypeError for improper arg/kwarg type combinations
         """
         # Type may be a Union
         if getattr(arg_type, "__args__", None) is not None:
@@ -124,6 +127,7 @@ class TypeChecker:
         """ Set max cache. If current cache size exceeds max_size, current cache is cleared
 
         :param max_size: Number > 0 of cached checked-function calls to store
+        :raises: TypeError for improper arg/kwarg type combinations
         """
         if isinstance(max_size, int) and max_size > 0:
             TypeChecker._max_cache_size = max_size
