@@ -66,6 +66,12 @@ class TypeChecker:
 
     @staticmethod
     def _check_type(arg_type, arg_name: str, passed_args: Dict):
+        """ Check if argument is proper type. Raises TypeError if improper
+
+        :param arg_type: Type expected
+        :param arg_name: Name of argument
+        :param passed_args: Argument:Value dictionary
+        """
         # Type may be a Union
         if getattr(arg_type, "__args__", None) is not None:
             if not TypeChecker._check_union(arg_type, passed_args[arg_name]):
@@ -79,18 +85,32 @@ class TypeChecker:
 
     @staticmethod
     def clear_cache():
+        """ Clear current cache contents
+
+        """
         TypeChecker._cache = set()
 
     @staticmethod
-    def current_cache_size():
+    def current_cache_size() -> int:
+        """ Get number of function call types stored in cache
+
+        :return: Current number of call types stored in cache
+        """
         return len(TypeChecker._cache)
 
     @staticmethod
     def set_max_cache_size(max_size: int):
+        """ Set max cache. If current cache size exceeds max_size, current cache is cleared
+
+        :param max_size: Number > 0 of cached checked-function calls to store
+        """
         if isinstance(max_size, int) and max_size > 0:
             TypeChecker._max_cache_size = max_size
 
     @staticmethod
     def _clear_if_surpassed_max_size():
+        """ Check if cache size surpasses largest allowed and clear
+
+        """
         if TypeChecker.current_cache_size() >= TypeChecker._max_cache_size:
             TypeChecker.clear_cache()
