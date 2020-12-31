@@ -30,16 +30,16 @@ class TypeChecker:
             # Get types specified by type annotations
             specified_types = get_type_hints(func)
             # Calculate id of function data
-            cache_add = id([*args, *kwargs.values(), func.__name__])
+            cache_add_id = id([*args, *kwargs.values(), func.__name__])
             # Check if cached
-            if cache_add not in TypeChecker._cache:
+            if cache_add_id not in TypeChecker._cache:
                 # Check arguments passed to ensure valid
                 for arg_name, arg_type in specified_types.items():
                     if arg_name not in passed_args.keys():
                         continue
                     TypeChecker._check_type(arg_type, arg_name, passed_args)
                 # Add successful call to cache
-                TypeChecker._cache.add(cache_add)
+                TypeChecker._cache.add(cache_add_id)
             # Get function output
             output = func(*args, **kwargs)
             # Confirm output is valid

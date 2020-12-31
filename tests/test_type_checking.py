@@ -73,10 +73,40 @@ class Test(TestCase):
         self.assertTrue(True)
 
     def test_return_bad_union(self):
-        
+
         @TypeChecker.check_types
         def simple(val: Union[str, Str]) -> Union[str, float]:
             return int(val)
 
         with self.assertRaises(TypeError):
             simple("1")
+
+    def test_cache(self):
+        TypeChecker.clear_cache()
+
+        @TypeChecker.check_types
+        def simple(val: Union[str, Str]) -> Union[str, int]:
+            if isinstance(val, Str):
+                return int(str(val))
+            return int(val)
+
+        simple("1")
+        simple(Str("1"))
+        simple("2")
+        simple(Str("2"))
+
+        self.assertEqual(2, TypeChecker.current_cache_size())
+
+    def test_cache_rollover(self):
+        TypeChecker.clear_cache()
+
+        @TypeChecker.check_types
+        def simple(val: Union[str, Str]) -> Union[str, int]:
+            if isinstance(val, Str):
+                return int(str(val))
+            return int(val)
+
+        for _ in range(256):
+            simple("1")
+
+        self.assertEqual(1, TypeChecker.current_cache_size())
