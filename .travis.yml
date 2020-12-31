@@ -5,5 +5,5 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - pytest --cov=lib tests/
-  - pylint lib
+  - pytest --cov=data_structures tests/
+  - pylint data_structures

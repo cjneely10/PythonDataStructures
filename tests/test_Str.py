@@ -1,5 +1,5 @@
 from unittest import TestCase
-from lib.mutable_string import Str
+from data_structures.mutable_string import Str
 
 
 class TestStr(TestCase):
