@@ -99,6 +99,7 @@ class Test(TestCase):
 
     def test_cache_rollover(self):
         TypeChecker.clear_cache()
+        TypeChecker.set_max_cache_size(1)
 
         @TypeChecker.check_types
         def simple(val: Union[str, Str]) -> Union[str, int]:
@@ -106,7 +107,9 @@ class Test(TestCase):
                 return int(str(val))
             return int(val)
 
-        for _ in range(256):
-            simple("1")
+        simple("1")
+        simple(Str("1"))
 
         self.assertEqual(1, TypeChecker.current_cache_size())
+        with self.assertRaises(TypeError):
+            TypeChecker.set_max_cache_size(-1)
