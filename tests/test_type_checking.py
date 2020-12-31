@@ -1,7 +1,7 @@
 from typing import Optional, Union
 from unittest import TestCase
-from mutable_string import Str
-from type_checking import TypeChecker
+from lib.mutable_string import Str
+from lib.type_checking import TypeChecker
 
 
 class Test(TestCase):

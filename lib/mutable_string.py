@@ -3,7 +3,7 @@ Module holds class functionality for mutable strings
 """
 import copy
 from typing import List, Union, Iterator, Callable
-from type_checking import TypeChecker
+from lib.type_checking import TypeChecker
 
 
 def handle_const(func: Callable):
