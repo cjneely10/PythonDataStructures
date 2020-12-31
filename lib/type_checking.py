@@ -40,13 +40,13 @@ class TypeChecker:
                     if arg_name not in passed_args.keys():
                         continue
                     TypeChecker._validate_type(arg_type, passed_args[arg_name], TypeChecker.ERR_STR % arg_name)
-                # Add successful call to cache
-                TypeChecker._cache.add(cache_add_id)
             # Get function output
             output = func(*args, **kwargs)
             # Confirm output is valid
             if "return" in specified_types.keys():
                 TypeChecker._validate_type(specified_types["return"], output, TypeChecker.RETURN_ERR_STR)
+            # Add successful call to cache
+            TypeChecker._cache.add(cache_add_id)
             return output
 
         return fxn
