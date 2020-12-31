@@ -33,6 +33,7 @@ class Str:
 
     def __init__(self, string: Union[str, "Str"], const: bool = False):
         """ Create a Str object from a python str or another Str object
+
         :param string: Str/str object to use to create Str, default None
         """
         if isinstance(string, (str, Str)):
