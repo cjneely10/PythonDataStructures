@@ -106,6 +106,8 @@ class TypeChecker:
         """
         if isinstance(max_size, int) and max_size > 0:
             TypeChecker._max_cache_size = max_size
+            return
+        raise TypeError("Must provide positive cache size")
 
     @staticmethod
     def _clear_if_surpassed_max_size():
