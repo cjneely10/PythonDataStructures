@@ -11,7 +11,7 @@ class TypeChecker:
     and to handle type checking if not yet called
     """
     # Default error string
-    ERR_STR = "Data %s\nmust be of type {}"
+    ERR_STR = "Data %s\n  must be of type {}"
     RETURN_ERR_STR = "return type does not match {}"
     _max_cache_size = 256
     _cache = set()
@@ -83,10 +83,10 @@ class TypeChecker:
         """
         if getattr(arg_type, "__args__", None) is not None:
             if not TypeChecker._check_union(arg_type, output):
-                raise TypeError(err_string.format(" or ".join(list(map(str, arg_type)))))
+                raise TypeError(err_string.format(" or ".join(list(map(str, arg_type.__args__)))))
         else:
             if not isinstance(output, arg_type):
-                raise TypeError(err_string.format(" or ".join(list(map(str, arg_type)))))
+                raise TypeError(err_string.format(arg_type))
 
     @staticmethod
     def clear_cache():
