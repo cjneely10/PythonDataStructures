@@ -5,8 +5,6 @@ import copy
 from typing import List, Union, Iterator, Callable
 from type_checking import TypeChecker
 
-TypeChecker.set_max_cache_size(2)
-
 
 def handle_const(func: Callable):
     """ Decorator checks if Str object is non-const reference
