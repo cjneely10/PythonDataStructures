@@ -29,7 +29,7 @@ class TypeChecker:
             passed_args = inspect.signature(func).bind(*args, **kwargs).arguments
             # Get allowed types of f
             specified_types = get_type_hints(func)
-            cache_add = id([*args, *kwargs, func.__name__])
+            cache_add = id([*args, *kwargs.values(), func.__name__])
             if cache_add not in TypeChecker._cache:
                 for arg_name, arg_type in specified_types.items():
                     if arg_name not in passed_args.keys():
