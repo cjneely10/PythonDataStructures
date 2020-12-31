@@ -56,7 +56,7 @@ class TypeChecker:
         """ Check if cache size surpasses largest allowed and clear
 
         """
-        if TypeChecker.current_cache_size() >= TypeChecker._max_cache_size:
+        if TypeChecker.get_current_cache_size() >= TypeChecker._max_cache_size:
             TypeChecker.clear_cache()
 
     @staticmethod
@@ -96,7 +96,7 @@ class TypeChecker:
         TypeChecker._cache = set()
 
     @staticmethod
-    def current_cache_size() -> int:
+    def get_current_cache_size() -> int:
         """ Get number of function call types stored in cache
 
         :return: Current number of call types stored in cache

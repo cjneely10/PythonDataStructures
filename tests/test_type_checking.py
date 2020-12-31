@@ -95,7 +95,7 @@ class Test(TestCase):
         simple("2")
         simple(Str("2"))
 
-        self.assertEqual(2, TypeChecker.current_cache_size())
+        self.assertEqual(2, TypeChecker.get_current_cache_size())
 
     def test_cache_rollover(self):
         TypeChecker.clear_cache()
@@ -110,6 +110,6 @@ class Test(TestCase):
         simple("1")
         simple(Str("1"))
 
-        self.assertEqual(1, TypeChecker.current_cache_size())
+        self.assertEqual(1, TypeChecker.get_current_cache_size())
         with self.assertRaises(TypeError):
             TypeChecker.set_max_cache_size(-1)

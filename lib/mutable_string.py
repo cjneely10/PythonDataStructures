@@ -137,14 +137,14 @@ class Str:
             self._data[i] = char
             i += 1
 
-    def split(self, *args, **kwargs) -> List[str]:
+    def split(self, *args, **kwargs) -> List["Str"]:
         """ Split contents into python's str type
 
         :param args: str.split() args
         :param kwargs: str.split() kwargs
         :return: List of split strings
         """
-        return str(self).split(*args, **kwargs)
+        return list(map(Str, str(self).split(*args, **kwargs)))
 
     def set_const(self):
         """ Sets const status of owned object to True

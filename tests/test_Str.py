@@ -115,7 +115,7 @@ class TestStr(TestCase):
 
     def test_split(self):
         data = Str("Hello world!")
-        self.assertEqual(["Hello", "world!"], data.split(" "))
+        self.assertEqual([Str("Hello"), Str("world!")], data.split(" "))
 
     def test_insert_slice(self):
         data = Str("Hello world!")
