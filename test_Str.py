@@ -153,7 +153,6 @@ class TestStr(TestCase):
         self.assertTrue(data < data2)
         self.assertFalse(data2 < data)
         data3 = Str("Heyyo!")
-        # print(data, data3)
         self.assertTrue(data < data3)
         self.assertFalse(data < data)
         self.assertEqual(data, data)

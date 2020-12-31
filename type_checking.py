@@ -2,7 +2,6 @@
 Module holds class TypeChecker for simple function type check at runtime prior to function call
 """
 import inspect
-from functools import lru_cache
 from typing import get_type_hints, Callable, Union, Dict
 
 
@@ -13,24 +12,30 @@ class TypeChecker:
     """
     # Default error string
     ERR_STR = "Data {}\nmust be of type {}"
+    _max_cache_size = 256
+    _cache = set()
 
     @staticmethod
-    @lru_cache(None, True)
     def check_types(func: Callable):
         """ Check if types of args/kwargs passed to function/method are valid for provided type signatures
 
         :param func: Called function/method
         :return: Decorated function/method. Raises TypeError if improper type/arg combination is found
         """
+
         def fxn(*args, **kwargs):
+            TypeChecker._clear_if_surpassed_max_size()
             # Get passed args as dict
             passed_args = inspect.signature(func).bind(*args, **kwargs).arguments
             # Get allowed types of f
             specified_types = get_type_hints(func)
-            for arg_name, arg_type in specified_types.items():
-                if arg_name not in passed_args.keys():
-                    continue
-                TypeChecker._check_type(arg_type, arg_name, passed_args)
+            cache_add = id([*args, *kwargs, func.__name__])
+            if cache_add not in TypeChecker._cache:
+                for arg_name, arg_type in specified_types.items():
+                    if arg_name not in passed_args.keys():
+                        continue
+                    TypeChecker._check_type(arg_type, arg_name, passed_args)
+                TypeChecker._cache.add(cache_add)
             output = func(*args, **kwargs)
             if "return" in specified_types.keys():
                 arg_type = specified_types["return"]
@@ -71,3 +76,21 @@ class TypeChecker:
         else:
             if not isinstance(passed_args[arg_name], arg_type):
                 raise TypeError(TypeChecker.ERR_STR.format(arg_name, " or ".join(list(map(str, arg_type)))))
+
+    @staticmethod
+    def clear_cache():
+        TypeChecker._cache = set()
+
+    @staticmethod
+    def current_cache_size():
+        return len(TypeChecker._cache)
+
+    @staticmethod
+    def set_max_cache_size(max_size: int):
+        if isinstance(max_size, int) and max_size > 0:
+            TypeChecker._max_cache_size = max_size
+
+    @staticmethod
+    def _clear_if_surpassed_max_size():
+        if len(TypeChecker._cache) >= TypeChecker._max_cache_size:
+            TypeChecker.clear_cache()

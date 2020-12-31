@@ -5,6 +5,8 @@ import copy
 from typing import List, Union, Iterator, Callable
 from type_checking import TypeChecker
 
+TypeChecker.set_max_cache_size(2)
+
 
 def handle_const(func: Callable):
     """ Decorator checks if Str object is non-const reference
@@ -31,16 +33,18 @@ class Str:
     """
     ERR_STRING = "Input string must be python native `str` type or another `Str` object"
 
-    @TypeChecker.check_types
     def __init__(self, string: Union[str, "Str"], const: bool = False):
         """ Create a Str object from a python str or another Str object
         :param string: Str/str object to use to create Str, default None
         """
-        self._data: List[str] = []
-        self._pos = 0
-        for char in string:
-            self._data.append(char)
-        self._const = const
+        if isinstance(string, (str, Str)):
+            self._data: List[str] = []
+            self._pos = 0
+            for char in string:
+                self._data.append(char)
+            self._const = const
+        else:
+            raise TypeError(Str.ERR_STRING)
 
     @property
     def const(self) -> bool:
@@ -261,6 +265,13 @@ class Str:
             return self._data[self._pos - 1]
         raise StopIteration
 
+    def __hash__(self) -> int:
+        """ Provide hash overload
+
+        :return: Hashed Str object
+        """
+        return hash("".join(self._data))
+
     @TypeChecker.check_types
     def __eq__(self, other: Union[str, "Str"]) -> bool:
         """ Compares if two Str objects contain the same data
@@ -296,10 +307,3 @@ class Str:
         if id(self) == id(other):
             return False
         return str(self) < str(other)
-
-    def __hash__(self) -> id:
-        """ Provide hash overload
-
-        :return: Hashed Str object
-        """
-        return hash("".join(self._data))
