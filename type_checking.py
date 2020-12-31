@@ -92,5 +92,5 @@ class TypeChecker:
 
     @staticmethod
     def _clear_if_surpassed_max_size():
-        if len(TypeChecker._cache) >= TypeChecker._max_cache_size:
+        if TypeChecker.current_cache_size() >= TypeChecker._max_cache_size:
             TypeChecker.clear_cache()
