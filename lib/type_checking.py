@@ -11,7 +11,8 @@ class TypeChecker:
     and to handle type checking if not yet called
     """
     # Default error string
-    ERR_STR = "Data {}\nmust be of type {}"
+    ERR_STR = "Data %s\nmust be of type {}"
+    RETURN_ERR_STR = "return type does not match {}"
     _max_cache_size = 256
     _cache = set()
 
@@ -38,14 +39,14 @@ class TypeChecker:
                 for arg_name, arg_type in specified_types.items():
                     if arg_name not in passed_args.keys():
                         continue
-                    TypeChecker._check_type(arg_type, arg_name, passed_args)
+                    TypeChecker._validate_type(arg_type, passed_args[arg_name], TypeChecker.ERR_STR % arg_name)
                 # Add successful call to cache
                 TypeChecker._cache.add(cache_add_id)
             # Get function output
             output = func(*args, **kwargs)
             # Confirm output is valid
             if "return" in specified_types.keys():
-                TypeChecker._validate_output(specified_types, output)
+                TypeChecker._validate_type(specified_types["return"], output, TypeChecker.RETURN_ERR_STR)
             return output
 
         return fxn
@@ -72,40 +73,13 @@ class TypeChecker:
         return False
 
     @staticmethod
-    def _validate_output(specified_types, output):
-        """ Confirm that output generate by function call has expected type. Raises TypeError if issue
-
-        :param specified_types: Dictionary of annotated types
-        :param output: Function call output
-        :raises: TypeError for improper arg/kwarg type combinations
-        """
-        arg_type = specified_types["return"]
+    def _validate_type(arg_type, output, err_string):
         if getattr(arg_type, "__args__", None) is not None:
             if not TypeChecker._check_union(arg_type, output):
-                raise TypeError("return type does not match {}".format(" or ".join(list(map(str, arg_type)))))
+                raise TypeError(err_string.format(" or ".join(list(map(str, arg_type)))))
         else:
             if not isinstance(output, arg_type):
-                raise TypeError("return type does not match {}".format(" or ".join(list(map(str, arg_type)))))
-
-    @staticmethod
-    def _check_type(arg_type, arg_name: str, passed_args: Dict):
-        """ Check if argument is proper type. Raises TypeError if improper
-
-        :param arg_type: Type expected
-        :param arg_name: Name of argument
-        :param passed_args: Argument:Value dictionary
-        :raises: TypeError for improper arg/kwarg type combinations
-        """
-        # Type may be a Union
-        if getattr(arg_type, "__args__", None) is not None:
-            if not TypeChecker._check_union(arg_type, passed_args[arg_name]):
-                raise TypeError(
-                    TypeChecker.ERR_STR.format(arg_name, " or ".join(list(map(str, arg_type.__args__))))
-                )
-        # Type is a non-Union
-        else:
-            if not isinstance(passed_args[arg_name], arg_type):
-                raise TypeError(TypeChecker.ERR_STR.format(arg_name, " or ".join(list(map(str, arg_type)))))
+                raise TypeError(err_string.format(" or ".join(list(map(str, arg_type)))))
 
     @staticmethod
     def clear_cache():
