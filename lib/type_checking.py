@@ -2,7 +2,7 @@
 Module holds class TypeChecker for simple function type check at runtime prior to function call
 """
 import inspect
-from typing import get_type_hints, Callable, Union, Dict, Type
+from typing import get_type_hints, Callable, Union, Type
 
 
 class TypeChecker:
