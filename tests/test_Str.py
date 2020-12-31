@@ -127,13 +127,6 @@ class TestStr(TestCase):
         data2 = Str(data)
         self.assertNotEqual(id(data), id(data2))
 
-    def test_typing(self):
-        data = Str("Hello world!")
-        data.append("value")
-        data.append(Str("value"))
-        with self.assertRaises(TypeError):
-            data.append(["value"])
-
     def test_format(self):
         data = Str("Hello {}!")
         self.assertEqual(Str("Hello world!"), data.format("world"))
