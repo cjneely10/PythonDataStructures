@@ -11,7 +11,7 @@ class TypeChecker:
     and to handle type checking if not yet called
     """
     # Default error string
-    ERR_STR = "Data %s\n  must be of type {}"
+    ERR_STR = "Data %s must be of type {}"
     RETURN_ERR_STR = "return type does not match {}"
     _max_cache_size = 256
     _cache = set()
