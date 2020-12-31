@@ -74,6 +74,13 @@ class TypeChecker:
 
     @staticmethod
     def _validate_type(arg_type: Type, output: object, err_string: str):
+        """ Check if arg type matches actual arg value, if not display error string
+
+        :param arg_type: Expected type
+        :param output: Actual value
+        :param err_string: Error string to display if failed
+        :raises: TypeError if improper type found
+        """
         if getattr(arg_type, "__args__", None) is not None:
             if not TypeChecker._check_union(arg_type, output):
                 raise TypeError(err_string.format(" or ".join(list(map(str, arg_type)))))
