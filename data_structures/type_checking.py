@@ -2,7 +2,7 @@
 Module holds class TypeChecker for simple function type check at runtime prior to function call
 """
 import inspect
-from typing import get_type_hints, Callable, Union, Type
+from typing import get_type_hints, Callable, Union, Type, Tuple
 
 
 class TypeChecker:
@@ -14,6 +14,9 @@ class TypeChecker:
     ERR_STR = "Data %s must be of type {}"
     RETURN_ERR_STR = "return type does not match {}"
     _max_cache_size = 256
+    _cached_calls = 0
+    _missed_calls = 0
+    _total_calls = 0
     _cache = set()
 
     @staticmethod
@@ -32,7 +35,7 @@ class TypeChecker:
             # Get types specified by type annotations
             specified_types = get_type_hints(func)
             # Calculate id of function data
-            cache_add_id = id([*args, *kwargs.values(), func.__module__, func.__name__])
+            cache_add_id = id([*args, *kwargs.values(), id(func)])
             # Check if cached
             if cache_add_id not in TypeChecker._cache:
                 # Check arguments passed to ensure valid
@@ -40,6 +43,10 @@ class TypeChecker:
                     if arg_name not in passed_args.keys():
                         continue
                     TypeChecker._validate_type(arg_type, passed_args[arg_name], TypeChecker.ERR_STR % arg_name)
+                TypeChecker._missed_calls += 1
+            else:
+                TypeChecker._cached_calls += 1
+            TypeChecker._total_calls += 1
             # Get function output
             output = func(*args, **kwargs)
             # Confirm output is valid
@@ -93,6 +100,9 @@ class TypeChecker:
         """ Clear current cache contents
 
         """
+        TypeChecker._cached_calls = 0
+        TypeChecker._missed_calls = 0
+        TypeChecker._total_calls = 0
         TypeChecker._cache = set()
 
     @staticmethod
@@ -114,3 +124,16 @@ class TypeChecker:
             TypeChecker._max_cache_size = max_size
             return
         raise TypeError("Must provide positive cache size")
+
+    @staticmethod
+    def get_cache_stats() -> Tuple[int, int, int, int]:
+        """ Get current cache stats
+
+        :return: (#cached calls, #non-cached calls, #total calls, current cache size)
+        """
+        return (
+            TypeChecker._cached_calls,
+            TypeChecker._missed_calls,
+            TypeChecker._total_calls,
+            TypeChecker.get_current_cache_size()
+        )
