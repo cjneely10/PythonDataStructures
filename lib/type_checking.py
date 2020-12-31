@@ -2,7 +2,7 @@
 Module holds class TypeChecker for simple function type check at runtime prior to function call
 """
 import inspect
-from typing import get_type_hints, Callable, Union, Dict
+from typing import get_type_hints, Callable, Union, Dict, Type
 
 
 class TypeChecker:
@@ -73,7 +73,7 @@ class TypeChecker:
         return False
 
     @staticmethod
-    def _validate_type(arg_type, output, err_string):
+    def _validate_type(arg_type: Type, output: object, err_string: str):
         if getattr(arg_type, "__args__", None) is not None:
             if not TypeChecker._check_union(arg_type, output):
                 raise TypeError(err_string.format(" or ".join(list(map(str, arg_type)))))
