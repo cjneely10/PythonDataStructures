@@ -129,7 +129,7 @@ class TypeChecker:
         :return: Status if passed_value is valid based on contents of Union
         """
         for avail_arg_type in get_args(arg_type):
-            if isinstance(passed_value, avail_arg_type):
+            if isinstance(passed_value, avail_arg_type) or issubclass(type(passed_value), avail_arg_type):
                 return True
         return False
 
@@ -146,5 +146,5 @@ class TypeChecker:
             if not TypeChecker._check_union(arg_type, output):
                 raise TypeError(err_string.format(" or ".join(list(map(str, get_args(arg_type))))))
         else:
-            if not isinstance(output, arg_type):
+            if not (isinstance(output, arg_type) or issubclass(type(output), arg_type)):
                 raise TypeError(err_string.format(arg_type))

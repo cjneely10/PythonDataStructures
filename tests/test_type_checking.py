@@ -113,3 +113,25 @@ class Test(TestCase):
         self.assertEqual(1, TypeChecker.get_current_cache_size())
         with self.assertRaises(TypeError):
             TypeChecker.set_max_cache_size(-1)
+
+    def test_good_subclass(self):
+        class Val(str):
+            pass
+
+        @TypeChecker()
+        def fxn(value: str):
+            return value
+
+        print(type(fxn(Val())))
+        self.assertTrue(True)
+
+    def test_bad_subclass(self):
+        class Val(str):
+            pass
+
+        @TypeChecker()
+        def fxn(value: int):
+            return value
+
+        with self.assertRaises(TypeError):
+            print(type(fxn(Val())))
