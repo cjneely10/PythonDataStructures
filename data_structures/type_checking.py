@@ -36,17 +36,19 @@ class TypeChecker:
             specified_types = get_type_hints(func)
             # Calculate id of function data
             cache_add_id = id([*args, *kwargs.values(), id(func)])
+            # Update call count
+            TypeChecker._total_calls += 1
             # Check if cached
             if cache_add_id not in TypeChecker._cache:
+                # Track as missed cache call
+                TypeChecker._missed_calls += 1
                 # Check arguments passed to ensure valid
                 for arg_name, arg_type in specified_types.items():
-                    if arg_name not in passed_args.keys():
-                        continue
-                    TypeChecker._validate_type(arg_type, passed_args[arg_name], TypeChecker.ERR_STR % arg_name)
-                TypeChecker._missed_calls += 1
+                    if arg_name in passed_args.keys():
+                        TypeChecker._validate_type(arg_type, passed_args[arg_name], TypeChecker.ERR_STR % arg_name)
             else:
+                # Track as using cache call
                 TypeChecker._cached_calls += 1
-            TypeChecker._total_calls += 1
             # Get function output
             output = func(*args, **kwargs)
             # Confirm output is valid
