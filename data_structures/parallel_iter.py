@@ -2,7 +2,7 @@
 Module has various decorators for parallelizing function/method calls
 """
 import asyncio
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Tuple, Optional
 
 
 def parallelize(input_dict: Dict[str, List[object]]):
@@ -21,8 +21,8 @@ def parallelize(input_dict: Dict[str, List[object]]):
     return decorator
 
 
-async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable, args: List, kwargs: Dict):
-    """ Run function asynchronously
+async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable, args: List, kwargs: Dict) -> Tuple:
+    """ Build list of function calls and call each
 
     :param input_dict: Input kwargs for generating function calls
     :param fxn_to_call: Function to call
@@ -41,5 +41,17 @@ async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable, ar
             arg_combo[key] = input_dict[key][pos]
         fxn_call_list.append((fxn_to_call, arg_combo))
         pos += 1
-    res = await asyncio.gather(*(fxn(*args, **kw_combo) for fxn, kw_combo in fxn_call_list))
+    res = await asyncio.gather(*(_caller(fxn, args, kw_combo) for fxn, kw_combo in fxn_call_list))
+    return res
+
+
+async def _caller(fxn, args, kwargs) -> Optional[object]:
+    """ Call function with specified args and kwargs
+
+    :param fxn: Function to call asynchronously
+    :param args: Args passed to function
+    :param kwargs: Amended kwargs passed to function
+    :return: Result of function
+    """
+    res = await fxn(*args, **kwargs)
     return res
