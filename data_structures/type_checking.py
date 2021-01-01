@@ -43,9 +43,11 @@ class TypeChecker:
                 # Track as missed cache call
                 TypeChecker._missed_calls += 1
                 # Check arguments passed to ensure valid
-                for arg_name, arg_type in specified_types.items():
-                    if arg_name in passed_args.keys():
-                        TypeChecker._validate_type(arg_type, passed_args[arg_name], TypeChecker.ERR_STR % arg_name)
+                available_args = set(passed_args.keys()).intersection(set(specified_types.keys()))
+                for arg_name in available_args:
+                    TypeChecker._validate_type(
+                        specified_types[arg_name], passed_args[arg_name], TypeChecker.ERR_STR % arg_name
+                    )
             else:
                 # Track as using cache call
                 TypeChecker._cached_calls += 1

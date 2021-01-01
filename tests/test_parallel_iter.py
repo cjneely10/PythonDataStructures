@@ -20,6 +20,6 @@ class Test(TestCase):
         with self.assertRaises(AssertionError):
             @parallelize({"start_pos": [20, 30, 40], "end_pos": [100, 110, 120, 130]})
             async def out(start_pos: int, end_pos: int):
-                return
+                pass
 
             out()

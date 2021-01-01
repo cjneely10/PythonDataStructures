@@ -2,7 +2,7 @@
 Module has various decorators for parallelizing function/method calls
 """
 import asyncio
-from typing import Callable, Dict, List, Tuple, Optional
+from typing import Callable, Dict, List, Optional
 
 
 def parallelize(input_dict: Dict[str, List[object]]):
@@ -26,7 +26,7 @@ def parallelize(input_dict: Dict[str, List[object]]):
 
 
 async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable,
-                  args: List[object], kwargs: Dict[str, object]) -> Tuple:
+                  args: List[object], kwargs: Dict[str, object]) -> List[Optional[object]]:
     """ Build list of function calls and call each
 
     :param input_dict: Input kwargs for generating function calls
@@ -47,7 +47,7 @@ async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable,
         fxn_call_list.append((fxn_to_call, arg_combo))
         pos += 1
     res = await asyncio.gather(*(_caller(fxn, args, kw_combo) for fxn, kw_combo in fxn_call_list))
-    return res
+    return list(res)
 
 
 async def _caller(fxn: Callable, args: List[object], kwargs: Dict[str, object]) -> Optional[object]:
@@ -69,7 +69,7 @@ def _validate_input_dict(input_dict: Dict[str, List[object]]):
     :param input_dict: Input data to pass to functions
     :raises: AssertionError if imroperly formatted data
     """
-    input_ids = list(input_dict.keys())
+    input_ids = tuple(input_dict.keys())
     assert len(input_ids) > 0
     _len = len(input_dict[input_ids[0]])
     for key in input_ids[1:]:
