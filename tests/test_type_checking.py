@@ -95,7 +95,7 @@ class Test(TestCase):
         simple("2")
         simple(Str("2"))
 
-        self.assertEqual((2, 2, 4, 2), TypeChecker.get_cache_stats())
+        self.assertEqual(TypeChecker.CacheResults(2, 2, 4, 2), TypeChecker.get_cache_stats())
 
     def test_cache_rollover(self):
         TypeChecker.clear_cache()

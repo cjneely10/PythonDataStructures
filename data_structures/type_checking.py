@@ -2,7 +2,8 @@
 Module holds class TypeChecker for simple function type check at runtime prior to function call
 """
 import inspect
-from typing import get_type_hints, Callable, Union, Type, Tuple, get_args
+from collections import namedtuple
+from typing import get_type_hints, Callable, Union, Type, get_args
 
 
 class TypeChecker:
@@ -10,14 +11,19 @@ class TypeChecker:
     Class TypeChecker has simple decorator method to check if function has been called with specified parameters
     and to handle type checking if not yet called
     """
-    # Default error string
+    # Default error strings
     ERR_STR = "Argument '%s' must be of type {}"
     RETURN_ERR_STR = "Returned object must be of type {}"
+    # Default cache size
     _max_cache_size = 256
+    # Tracking stats for current TypeChecker
     _cached_calls = 0
     _missed_calls = 0
     _total_calls = 0
+    # Internal cache
     _cache = set()
+    # Results struct
+    CacheResults = namedtuple("CacheResults", ("cached_calls", "missed_calls", "total_calls", "current_cache_size"))
 
     @staticmethod
     def __call__(func: Callable):
@@ -84,16 +90,16 @@ class TypeChecker:
         raise TypeError("Must provide positive cache size")
 
     @staticmethod
-    def get_cache_stats() -> Tuple[int, int, int, int]:
+    def get_cache_stats() -> "TypeChecker.CacheResults":
         """ Get current cache stats
 
         :return: (#cached calls, #non-cached calls, #total calls, current cache size)
         """
-        return (
-            TypeChecker._cached_calls,
-            TypeChecker._missed_calls,
-            TypeChecker._total_calls,
-            TypeChecker.get_current_cache_size()
+        return TypeChecker.CacheResults(
+            cached_calls=TypeChecker._cached_calls,
+            missed_calls=TypeChecker._missed_calls,
+            total_calls=TypeChecker._total_calls,
+            current_cache_size=TypeChecker.get_current_cache_size()
         )
 
     @staticmethod
