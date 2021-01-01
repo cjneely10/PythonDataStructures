@@ -15,3 +15,11 @@ class Test(TestCase):
             return start_pos, end_pos
 
         self.assertTrue([(10, 100), (20, 110), (30, 120), (40, 130)], out())
+
+    def test_improper_args(self):
+        with self.assertRaises(AssertionError):
+            @parallelize({"start_pos": [20, 30, 40], "end_pos": [100, 110, 120, 130]})
+            async def out(start_pos: int, end_pos: int):
+                return
+
+            out()

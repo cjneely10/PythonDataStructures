@@ -12,6 +12,9 @@ def parallelize(input_dict: Dict[str, List[object]]):
     :param input_dict: arg_name: List[inputs...]
     :return: Decorated function
     """
+    # Validate input dict when code is read in
+    _validate_input_dict(input_dict)
+
     def decorator(func: Callable):
         def fxn(*args, **kwargs):
             args = list(args)
@@ -22,13 +25,14 @@ def parallelize(input_dict: Dict[str, List[object]]):
     return decorator
 
 
-async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable, args: List, kwargs: Dict) -> Tuple:
+async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable,
+                  args: List[object], kwargs: Dict[str, object]) -> Tuple:
     """ Build list of function calls and call each
 
     :param input_dict: Input kwargs for generating function calls
     :param fxn_to_call: Function to call
     :param args: Args to pass to function call
-    :param kwargs: kwargs to pass to function, some may be edited per request at decoration
+    :param kwargs: Kwargs to pass to function, some may be edited per request at decoration
     :return: Results of calling all functions
     """
     pos = 0
@@ -46,7 +50,7 @@ async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable, ar
     return res
 
 
-async def _caller(fxn: Callable, args: List, kwargs: Dict) -> Optional[object]:
+async def _caller(fxn: Callable, args: List[object], kwargs: Dict[str, object]) -> Optional[object]:
     """ Call function with specified args and kwargs
 
     :param fxn: Function to call asynchronously
@@ -56,3 +60,17 @@ async def _caller(fxn: Callable, args: List, kwargs: Dict) -> Optional[object]:
     """
     res = await fxn(*args, **kwargs)
     return res
+
+
+def _validate_input_dict(input_dict: Dict[str, List[object]]):
+    """ Check dict of input passed at decorator level. Confirm that some data is passed (otherwise
+    there is nothing to parallelize) and that the length of each input is that same
+
+    :param input_dict: Input data to pass to functions
+    :raises: AssertionError if imroperly formatted data
+    """
+    input_ids = list(input_dict.keys())
+    assert len(input_ids) > 0
+    _len = len(input_dict[input_ids[0]])
+    for key in input_ids[1:]:
+        assert len(input_dict[key]) == _len
