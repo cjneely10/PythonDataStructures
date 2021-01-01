@@ -2,7 +2,7 @@
 Module holds class TypeChecker for simple function type check at runtime prior to function call
 """
 import inspect
-from typing import get_type_hints, Callable, Union, Type, Tuple
+from typing import get_type_hints, Callable, Union, Type, Tuple, get_args
 
 
 class TypeChecker:
@@ -11,8 +11,8 @@ class TypeChecker:
     and to handle type checking if not yet called
     """
     # Default error string
-    ERR_STR = "Argument %s must be of type {}"
-    RETURN_ERR_STR = "Return type must be of type {}"
+    ERR_STR = "Argument '%s' must be of type {}"
+    RETURN_ERR_STR = "Returned object must be of type {}"
     _max_cache_size = 256
     _cached_calls = 0
     _missed_calls = 0
@@ -112,7 +112,7 @@ class TypeChecker:
         :param passed_value: type of argument passed
         :return: Status if passed_value is valid based on contents of Union
         """
-        for avail_arg_type in arg_type.__args__:
+        for avail_arg_type in get_args(arg_type):
             if isinstance(passed_value, avail_arg_type):
                 return True
         return False
@@ -128,7 +128,7 @@ class TypeChecker:
         """
         if getattr(arg_type, "__args__", None) is not None:
             if not TypeChecker._check_union(arg_type, output):
-                raise TypeError(err_string.format(" or ".join(list(map(str, arg_type.__args__)))))
+                raise TypeError(err_string.format(" or ".join(list(map(str, get_args(arg_type))))))
         else:
             if not isinstance(output, arg_type):
                 raise TypeError(err_string.format(arg_type))
