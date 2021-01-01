@@ -10,6 +10,7 @@ def parallelize(input_dict: Dict[str, List[object]]):
     are not adjusted. Expected input is dict mapping to list of inputs to try
 
     :param input_dict: arg_name: List[inputs...]
+    :raises: AttributeError for improperly formatted input data
     :return: Decorated function
     """
     # Validate input dict when code is read in
@@ -67,10 +68,14 @@ def _validate_input_dict(input_dict: Dict[str, List[object]]):
     there is nothing to parallelize) and that the length of each input is that same
 
     :param input_dict: Input data to pass to functions
-    :raises: AssertionError if imroperly formatted data
+    :raises: AttributeError if imroperly formatted data
     """
+    if not isinstance(input_dict, dict):
+        raise AttributeError("Input data must be in dict format")
     input_ids = tuple(input_dict.keys())
-    assert len(input_ids) > 0
+    if len(input_ids) == 0:
+        raise AttributeError("Cannot parallelize without provided input options")
     _len = len(input_dict[input_ids[0]])
     for key in input_ids[1:]:
-        assert len(input_dict[key]) == _len
+        if len(input_dict[key]) != _len:
+            raise AttributeError("Input data sizes are not identical")
