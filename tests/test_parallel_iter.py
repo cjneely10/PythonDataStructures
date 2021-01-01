@@ -12,7 +12,6 @@ class Test(TestCase):
             rand_val = random.randint(1, 10000)
             while rand_val < threshold:
                 rand_val = random.randint(1, 10000)
-            return rand_val
+            return start_pos, end_pos
 
-        print(out())
-        self.assertTrue(True)
+        self.assertTrue([(10, 100), (20, 110), (30, 120), (40, 130)], out())
