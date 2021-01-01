@@ -69,14 +69,6 @@ class TypeChecker:
         return fxn
 
     @staticmethod
-    def get_current_cache_size() -> int:
-        """ Get number of function call types stored in cache
-
-        :return: Current number of call types stored in cache
-        """
-        return len(TypeChecker._cache)
-
-    @staticmethod
     def set_max_cache_size(max_size: int):
         """ Set max cache. If current cache size exceeds max_size, current cache is cleared
 
@@ -88,6 +80,24 @@ class TypeChecker:
             TypeChecker._clear_if_surpassed_max_size()
             return
         raise TypeError("Must provide positive cache size")
+
+    @staticmethod
+    def clear_cache():
+        """ Clear current cache contents
+
+        """
+        TypeChecker._cached_calls = 0
+        TypeChecker._missed_calls = 0
+        TypeChecker._total_calls = 0
+        TypeChecker._cache = set()
+
+    @staticmethod
+    def get_current_cache_size() -> int:
+        """ Get number of function call types stored in cache
+
+        :return: Current number of call types stored in cache
+        """
+        return len(TypeChecker._cache)
 
     @staticmethod
     def get_cache_stats() -> "TypeChecker.CacheResults":
@@ -138,13 +148,3 @@ class TypeChecker:
         else:
             if not isinstance(output, arg_type):
                 raise TypeError(err_string.format(arg_type))
-
-    @staticmethod
-    def clear_cache():
-        """ Clear current cache contents
-
-        """
-        TypeChecker._cached_calls = 0
-        TypeChecker._missed_calls = 0
-        TypeChecker._total_calls = 0
-        TypeChecker._cache = set()
