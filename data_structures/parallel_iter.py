@@ -21,7 +21,7 @@ def parallelize(input_dict: Dict[str, List[object]]):
     return decorator
 
 
-async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable, args: List, kwargs: Dict) -> Tuple:
+async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable, args: Tuple, kwargs: Dict) -> Tuple:
     """ Build list of function calls and call each
 
     :param input_dict: Input kwargs for generating function calls
