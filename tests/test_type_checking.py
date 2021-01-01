@@ -122,7 +122,7 @@ class Test(TestCase):
         def fxn(value: str):
             return value
 
-        print(type(fxn(Val())))
+        type(fxn(Val()))
         self.assertTrue(True)
 
     def test_bad_subclass(self):

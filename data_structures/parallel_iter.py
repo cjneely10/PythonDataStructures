@@ -2,12 +2,44 @@
 Module has various decorators to parallelize function/method calls
 """
 import asyncio
+import concurrent.futures
 from typing import Callable, Dict, List, Optional
 
 
-def parallelize(input_dict: Dict[str, List[object]]):
+def iter_threaded(threads: int, input_dict: Dict[str, List[object]]):
     """ Parallelize function call using provided kwargs input dict. All non-kwargs
     are not adjusted. Expected input is dict mapping to list of inputs to try
+
+    Uses concurrent.futures and broadcasts calls across multiple threads
+
+    :param threads: Number of threads to launch to complete task list
+    :param input_dict: arg_name: List[inputs...]
+    :raises: AttributeError for improperly formatted input data
+    :return: Decorated function
+    """
+    if not isinstance(threads, int) or threads <= 0:
+        raise TypeError("Must pass positive thread value")
+    # Validate input dict when code is read in
+    _validate_input_dict(input_dict)
+
+    def decorator(func: Callable):
+        def fxn(*args, **kwargs):
+            fxn_call_list = _build_call_list(input_dict, kwargs)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+                output_data_futures = [executor.submit(func, *args, **arg_combo) for arg_combo in fxn_call_list]
+                concurrent.futures.wait(output_data_futures)
+                return [output.result() for output in output_data_futures]
+
+        return fxn
+
+    return decorator
+
+
+def iter_process(input_dict: Dict[str, List[object]]):
+    """ Parallelize function call using provided kwargs input dict. All non-kwargs
+    are not adjusted. Expected input is dict mapping to list of inputs to try.
+
+    Uses asyncio and maintains call running over single thread
 
     :param input_dict: arg_name: List[inputs...]
     :raises: AttributeError for improperly formatted input data
@@ -26,43 +58,6 @@ def parallelize(input_dict: Dict[str, List[object]]):
     return decorator
 
 
-async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable,
-                  args: List[object], kwargs: Dict[str, object]) -> List[Optional[object]]:
-    """ Build list of function calls and call each
-
-    :param input_dict: Input kwargs for generating function calls
-    :param fxn_to_call: Function to call
-    :param args: Args to pass to function call
-    :param kwargs: Kwargs to pass to function, some may be edited per request at decoration
-    :return: Results of calling all functions
-    """
-    pos = 0
-    fxn_call_list = []
-    at_outer = False
-    while at_outer is False:
-        arg_combo = {**kwargs}
-        for key in input_dict.keys():
-            if pos == len(input_dict[key]) - 1:
-                at_outer = True
-            arg_combo[key] = input_dict[key][pos]
-        fxn_call_list.append((fxn_to_call, arg_combo))
-        pos += 1
-    res = await asyncio.gather(*(_caller(fxn, args, kw_combo) for fxn, kw_combo in fxn_call_list))
-    return list(res)
-
-
-async def _caller(fxn: Callable, args: List[object], kwargs: Dict[str, object]) -> Optional[object]:
-    """ Call function with specified args and kwargs
-
-    :param fxn: Function to call asynchronously
-    :param args: Args passed to function
-    :param kwargs: Amended kwargs passed to function
-    :return: Result of function
-    """
-    res = await fxn(*args, **kwargs)
-    return res
-
-
 def _validate_input_dict(input_dict: Dict[str, List[object]]):
     """ Check dict of input passed at decorator level. Confirm that some data is passed (otherwise
     there is nothing to parallelize) and that the length of each input is that same
@@ -79,3 +74,52 @@ def _validate_input_dict(input_dict: Dict[str, List[object]]):
     for key in input_ids[1:]:
         if len(input_dict[key]) != _len:
             raise AttributeError("Input data sizes are not identical")
+
+
+def _build_call_list(input_dict, kwargs) -> List[Dict[str, object]]:
+    """ Iterate over passed args to generate function call. Check lengths of args to make sure
+    they are all the same
+
+    :param input_dict: Reference to passed data
+    :param kwargs: **kwargs
+    :return: Function args calls as list
+    """
+    pos = 0
+    fxn_call_list = []
+    at_outer = False
+    while at_outer is False:
+        arg_combo = {**kwargs}
+        for key in input_dict.keys():
+            if pos == len(input_dict[key]) - 1:
+                at_outer = True
+            arg_combo[key] = input_dict[key][pos]
+        fxn_call_list.append(arg_combo)
+        pos += 1
+    return fxn_call_list
+
+
+async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable,
+                  args: List[object], kwargs: Dict[str, object]) -> List[Optional[object]]:
+    """ Build list of function calls and call each
+
+    :param input_dict: Input kwargs for generating function calls
+    :param fxn_to_call: Function to call
+    :param args: Args to pass to function call
+    :param kwargs: Kwargs to pass to function, some may be edited per request at decoration
+    :return: Results of calling all functions
+    """
+    fxn_call_list = _build_call_list(input_dict, kwargs)
+    res = await asyncio.gather(*(_caller(fxn_to_call, args, kw_combo) for kw_combo in fxn_call_list))
+    return list(res)
+
+
+async def _caller(fxn: Callable, args: List[object], kwargs: Dict[str, object]) -> Optional[object]:
+    """ Call function with specified args and kwargs
+
+    :param fxn: Function to call asynchronously
+    :param args: Args passed to function
+    :param kwargs: Amended kwargs passed to function
+    :return: Result of function
+    """
+    res = await fxn(*args, **kwargs)
+    return res
