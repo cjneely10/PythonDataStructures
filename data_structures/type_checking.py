@@ -63,6 +63,40 @@ class TypeChecker:
         return fxn
 
     @staticmethod
+    def get_current_cache_size() -> int:
+        """ Get number of function call types stored in cache
+
+        :return: Current number of call types stored in cache
+        """
+        return len(TypeChecker._cache)
+
+    @staticmethod
+    def set_max_cache_size(max_size: int):
+        """ Set max cache. If current cache size exceeds max_size, current cache is cleared
+
+        :param max_size: Number > 0 of cached checked-function calls to store
+        :raises: TypeError for improper arg/kwarg type combinations
+        """
+        if isinstance(max_size, int) and max_size > 0:
+            TypeChecker._max_cache_size = max_size
+            TypeChecker._clear_if_surpassed_max_size()
+            return
+        raise TypeError("Must provide positive cache size")
+
+    @staticmethod
+    def get_cache_stats() -> Tuple[int, int, int, int]:
+        """ Get current cache stats
+
+        :return: (#cached calls, #non-cached calls, #total calls, current cache size)
+        """
+        return (
+            TypeChecker._cached_calls,
+            TypeChecker._missed_calls,
+            TypeChecker._total_calls,
+            TypeChecker.get_current_cache_size()
+        )
+
+    @staticmethod
     def _clear_if_surpassed_max_size():
         """ Check if cache size surpasses largest allowed and clear
 
@@ -108,37 +142,3 @@ class TypeChecker:
         TypeChecker._missed_calls = 0
         TypeChecker._total_calls = 0
         TypeChecker._cache = set()
-
-    @staticmethod
-    def get_current_cache_size() -> int:
-        """ Get number of function call types stored in cache
-
-        :return: Current number of call types stored in cache
-        """
-        return len(TypeChecker._cache)
-
-    @staticmethod
-    def set_max_cache_size(max_size: int):
-        """ Set max cache. If current cache size exceeds max_size, current cache is cleared
-
-        :param max_size: Number > 0 of cached checked-function calls to store
-        :raises: TypeError for improper arg/kwarg type combinations
-        """
-        if isinstance(max_size, int) and max_size > 0:
-            TypeChecker._max_cache_size = max_size
-            TypeChecker._clear_if_surpassed_max_size()
-            return
-        raise TypeError("Must provide positive cache size")
-
-    @staticmethod
-    def get_cache_stats() -> Tuple[int, int, int, int]:
-        """ Get current cache stats
-
-        :return: (#cached calls, #non-cached calls, #total calls, current cache size)
-        """
-        return (
-            TypeChecker._cached_calls,
-            TypeChecker._missed_calls,
-            TypeChecker._total_calls,
-            TypeChecker.get_current_cache_size()
-        )
