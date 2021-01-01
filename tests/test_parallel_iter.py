@@ -1,14 +1,12 @@
 import random
 from unittest import TestCase
 from data_structures.parallel_iter import parallelize
-from data_structures.type_checking import TypeChecker
 
 
 class Test(TestCase):
     def test_parallelize(self):
 
         @parallelize({"start_pos": [10, 20, 30, 40], "end_pos": [100, 110, 120, 130]})
-        @TypeChecker()
         async def out(start_pos: int, end_pos: int):
             threshold = random.randint(1000, 10000)
             rand_val = random.randint(1, 10000)
@@ -23,7 +21,6 @@ class Test(TestCase):
         with self.assertRaises(AttributeError):
 
             @parallelize({"start_pos": [20, 30, 40], "end_pos": [100, 110, 120, 130]})
-            @TypeChecker()
             async def out(start_pos: int, end_pos: int):
                 pass
 
@@ -34,7 +31,6 @@ class Test(TestCase):
         with self.assertRaises(AttributeError):
 
             @parallelize({})
-            @TypeChecker()
             async def out(start_pos: int, end_pos: int):
                 pass
 
@@ -45,7 +41,6 @@ class Test(TestCase):
         with self.assertRaises(AttributeError):
 
             @parallelize("")
-            @TypeChecker()
             async def out(start_pos: int, end_pos: int):
                 pass
 
