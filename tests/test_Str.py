@@ -156,3 +156,30 @@ class TestStr(TestCase):
 
     def test_hash_collision(self):
         self.assertEqual(hash(Str("val")), hash(Str("val")))
+
+    def test_shared_access(self):
+        data = Str("PArallelize!")
+
+        ref_list = []
+
+        for _ in range(100):
+            ref_list.append(data)
+
+        data[1] = "a"
+
+        for i in range(100):
+            self.assertEqual("Parallelize!", str(ref_list[i]))
+
+        ref_list[0][0] = "a"
+
+        for i in range(100):
+            self.assertEqual(data, ref_list[i])
+
+        data.set_const()
+
+        with self.assertRaises(TypeError):
+            for i in range(100):
+                ref_list[i][0] = "a"
+
+        for i in range(100):
+            self.assertEqual(ref_list[i], data)
