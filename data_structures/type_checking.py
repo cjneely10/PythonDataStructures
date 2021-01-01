@@ -11,8 +11,8 @@ class TypeChecker:
     and to handle type checking if not yet called
     """
     # Default error string
-    ERR_STR = "Data %s must be of type {}"
-    RETURN_ERR_STR = "return type does not match {}"
+    ERR_STR = "Argument %s must be of type {}"
+    RETURN_ERR_STR = "Return type must be of type {}"
     _max_cache_size = 256
     _cached_calls = 0
     _missed_calls = 0
@@ -35,7 +35,7 @@ class TypeChecker:
             # Get types specified by type annotations
             specified_types = get_type_hints(func)
             # Calculate id of function data
-            cache_add_id = id([*args, *kwargs.values(), id(func)])
+            cache_add_id = id([*args, *kwargs.values(), id(func), func.__name__])
             # Update call count
             TypeChecker._total_calls += 1
             # Check if cached
