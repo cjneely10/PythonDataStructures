@@ -14,6 +14,7 @@ def parallelize(input_dict: Dict[str, List[object]]):
     """
     def decorator(func: Callable):
         def fxn(*args, **kwargs):
+            args = list(args)
             return asyncio.run(_runner(input_dict, func, args, kwargs))
 
         return fxn
@@ -21,7 +22,7 @@ def parallelize(input_dict: Dict[str, List[object]]):
     return decorator
 
 
-async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable, args: Tuple, kwargs: Dict) -> Tuple:
+async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable, args: List, kwargs: Dict) -> Tuple:
     """ Build list of function calls and call each
 
     :param input_dict: Input kwargs for generating function calls
@@ -45,7 +46,7 @@ async def _runner(input_dict: Dict[str, List[object]], fxn_to_call: Callable, ar
     return res
 
 
-async def _caller(fxn, args, kwargs) -> Optional[object]:
+async def _caller(fxn: Callable, args: List, kwargs: Dict) -> Optional[object]:
     """ Call function with specified args and kwargs
 
     :param fxn: Function to call asynchronously
