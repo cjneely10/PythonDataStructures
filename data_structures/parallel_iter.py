@@ -1,5 +1,5 @@
 """
-Module has various decorators for parallelizing function/method calls
+Module has various decorators to parallelize function/method calls
 """
 import asyncio
 from typing import Callable, Dict, List, Optional
@@ -68,7 +68,7 @@ def _validate_input_dict(input_dict: Dict[str, List[object]]):
     there is nothing to parallelize) and that the length of each input is that same
 
     :param input_dict: Input data to pass to functions
-    :raises: AttributeError if imroperly formatted data
+    :raises: AttributeError if improperly formatted data
     """
     if not isinstance(input_dict, dict):
         raise AttributeError("Input data must be in dict format")
