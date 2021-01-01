@@ -20,7 +20,7 @@ class TypeChecker:
     _cache = set()
 
     @staticmethod
-    def check_types(func: Callable):
+    def __call__(func: Callable):
         """ Check if types of args/kwargs passed to function/method are valid for provided type signatures
 
         :param func: Called function/method

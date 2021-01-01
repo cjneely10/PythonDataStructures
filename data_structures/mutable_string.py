@@ -56,7 +56,7 @@ class Str:
         return self._const
 
     @handle_const
-    @TypeChecker.check_types
+    @TypeChecker()
     def append(self, value: Union[str, "Str"]):
         """ Add str/Str contents to current string
 
@@ -73,7 +73,7 @@ class Str:
         self._data.reverse()
 
     @handle_const
-    @TypeChecker.check_types
+    @TypeChecker()
     def extend(self, value: Union[str, "Str"]):
         """ Add contents of str/Str to current string
 
@@ -90,7 +90,7 @@ class Str:
         return self._data.pop()
 
     @handle_const
-    @TypeChecker.check_types
+    @TypeChecker()
     def remove(self, index: Union[int, slice]):
         """ Remove index/slice of string
 
@@ -98,7 +98,7 @@ class Str:
         """
         del self._data[index]
 
-    @TypeChecker.check_types
+    @TypeChecker()
     def copy(self, const: bool = False) -> "Str":
         """ Create deep copy of current string and returns new Str object
         Assigns const status to newly created string
@@ -112,7 +112,7 @@ class Str:
         return data_copy
 
     @handle_const
-    @TypeChecker.check_types
+    @TypeChecker()
     def insert(self, i: int, string: Union[str, "Str"]):
         """ Insert string contents at position. Does not support negative indexing
 
@@ -183,7 +183,7 @@ class Str:
         return len(self._data)
 
     @handle_const
-    @TypeChecker.check_types
+    @TypeChecker()
     def __iadd__(self, other: Union[str, "Str"]) -> "Str":
         """ Add str/Str contents to current string
 
@@ -194,7 +194,7 @@ class Str:
         return self
 
     @handle_const
-    @TypeChecker.check_types
+    @TypeChecker()
     def __add__(self, other: Union[str, "Str"]) -> "Str":
         """ Add str/Str contents to current string
 
@@ -205,7 +205,7 @@ class Str:
         out.append(other)
         return out
 
-    @TypeChecker.check_types
+    @TypeChecker()
     def __getitem__(self, i: Union[int, slice]) -> str:
         """ Get data stored at position/slice
 
@@ -215,7 +215,7 @@ class Str:
         return "".join(self._data[i])
 
     @handle_const
-    @TypeChecker.check_types
+    @TypeChecker()
     def __setitem__(self, i: Union[int, slice], string: Union[str, "Str"]):
         """ Set contents of string at position/slice
 
@@ -239,7 +239,7 @@ class Str:
             self.append(string[pos:])
 
     @handle_const
-    @TypeChecker.check_types
+    @TypeChecker()
     def __delitem__(self, i: Union[int, slice]):
         """ Remove contents of string at position/slice
 
@@ -273,7 +273,7 @@ class Str:
         """
         return hash("".join(self._data))
 
-    @TypeChecker.check_types
+    @TypeChecker()
     def __eq__(self, other: Union[str, "Str"]) -> bool:
         """ Compares if two Str objects contain the same data
 
@@ -289,7 +289,7 @@ class Str:
                 return False
         return True
 
-    @TypeChecker.check_types
+    @TypeChecker()
     def __ne__(self, other: Union[str, "Str"]) -> bool:
         """ Compares if two Str objects don't contain the same data
 
@@ -298,7 +298,7 @@ class Str:
         """
         return not self.__eq__(other)
 
-    @TypeChecker.check_types
+    @TypeChecker()
     def __lt__(self, other: Union[str, "Str"]) -> bool:
         """ Compare strings for lexicographically smaller value
 
