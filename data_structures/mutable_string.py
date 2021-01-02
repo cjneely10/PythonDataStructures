@@ -2,6 +2,7 @@
 Module holds class functionality for mutable strings
 """
 import copy
+from collections.abc import MutableSequence
 from typing import List, Union, Iterator, Callable
 from data_structures.type_checking import TypeChecker
 
@@ -21,7 +22,9 @@ def handle_const(func: Callable):
     return fxn
 
 
-class Str:
+# pylint: disable=too-many-ancestors
+# pylint: disable=arguments-differ
+class Str(MutableSequence):
     """ Mutable string class, pass-by-reference internal data
 
     Pass by "const reference" ensures that inner data is not mutated, but does no further
