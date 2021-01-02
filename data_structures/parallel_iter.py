@@ -3,10 +3,12 @@ Module has various decorators to parallelize function/method calls
 """
 import asyncio
 import concurrent.futures
-from typing import Callable, Dict, List, Optional, Iterable, Sized, Union
+from typing import Callable, Dict, List, Optional, Sequence
+
+InputSequence = Sequence
 
 
-def iter_threaded(threads: int, **kwargs):
+def iter_threaded(threads: int, **kwargs: InputSequence):
     """ Parallelize function call using provided kwargs input dict. All non-kwargs
     are not adjusted. Expected input is dict mapping to list of inputs to try
 
@@ -43,7 +45,17 @@ def iter_threaded(threads: int, **kwargs):
     return decorator
 
 
-def iter_process(**kwargs):
+def filter_output(output: List[object], ignore_types: Sequence[type] = (Exception,)):
+    """ Filter list of all objects with types in ignore_types and return new list
+
+    :param output: Output from parallelized function
+    :param ignore_types: Types to ignore
+    :return: List of filtered output
+    """
+    return [out_value for out_value in output if out_value not in ignore_types]
+
+
+def iter_process(**kwargs: InputSequence):
     """ Parallelize function call using provided kwargs input dict. All non-kwargs
     are not adjusted. Expected input is dict mapping to list of inputs to try.
 
@@ -68,7 +80,7 @@ def iter_process(**kwargs):
     return decorator
 
 
-def _validate_input_dict(input_dict: Dict[str, Union[Iterable, Sized]]):
+def _validate_input_dict(input_dict: Dict[str, InputSequence]):
     """ Check dict of input passed at decorator level. Confirm that some data is passed (otherwise
     there is nothing to parallelize) and that the length of each input is that same
 
@@ -82,8 +94,7 @@ def _validate_input_dict(input_dict: Dict[str, Union[Iterable, Sized]]):
             raise AttributeError("Input data sizes are not identical")
 
 
-def _build_call_list(input_dict: Dict[str, Union[Iterable, Sized]],
-                     kwargs: Dict[str, object]) -> List[Dict[str, object]]:
+def _build_call_list(input_dict: Dict[str, InputSequence],kwargs: Dict[str, object]) -> List[Dict[str, object]]:
     """ Iterate over passed args to generate function call. Check lengths of args to make sure
     they are all the same
 
@@ -105,7 +116,7 @@ def _build_call_list(input_dict: Dict[str, Union[Iterable, Sized]],
     return fxn_call_list
 
 
-async def _runner(input_dict: Dict[str, Union[Iterable, Sized]], fxn_to_call: Callable,
+async def _runner(input_dict: Dict[str, InputSequence], fxn_to_call: Callable,
                   args: List[object], kwargs: Dict[str, object]) -> List[Optional[object]]:
     """ Build list of function calls and call each
 

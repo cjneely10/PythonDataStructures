@@ -1,7 +1,7 @@
 import random
 from unittest import TestCase
 from data_structures.type_checking import TypeChecker
-from data_structures.parallel_iter import iter_process, iter_threaded
+from data_structures.parallel_iter import iter_process, iter_threaded, filter_output
 
 
 class Test(TestCase):
@@ -59,3 +59,13 @@ class Test(TestCase):
             return value
 
         self.assertEqual([1, ArithmeticError, 3], issue())
+
+    def test_filter_output(self):
+
+        @iter_threaded(3, value=[1, 2, 3])
+        def issue(value: int):
+            if value == 2:
+                raise ArithmeticError
+            return value
+
+        self.assertEqual([1, 3], filter_output(issue(), ignore_types=(ArithmeticError,)))
