@@ -6,25 +6,25 @@ import concurrent.futures
 from typing import Callable, Dict, List, Optional, Iterable, Sized, Union
 
 
-def iter_threaded(threads: int, input_dict: Dict[str, Union[Iterable, Sized]]):
+def iter_threaded(threads: int, **kwargs):
     """ Parallelize function call using provided kwargs input dict. All non-kwargs
     are not adjusted. Expected input is dict mapping to list of inputs to try
 
     Uses concurrent.futures and broadcasts calls across multiple threads
 
     :param threads: Number of threads to launch to complete task list
-    :param input_dict: arg_name: List[inputs...]
+    :param kwargs: Keyword arguments to override in function
     :raises: AttributeError for improperly formatted input data
     :return: Decorated function
     """
     if not isinstance(threads, int) or threads <= 0:
         raise TypeError("Must pass positive thread value")
     # Validate input dict when code is read in
-    _validate_input_dict(input_dict)
+    _validate_input_dict(kwargs)
 
     def decorator(func: Callable):
-        def fxn(*args, **kwargs):
-            fxn_call_list = _build_call_list(input_dict, kwargs)
+        def fxn(*args, **kws):
+            fxn_call_list = _build_call_list(kwargs, kws)
             with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
                 output_data_futures = [executor.submit(func, *args, **arg_combo) for arg_combo in fxn_call_list]
                 concurrent.futures.wait(output_data_futures)
@@ -35,7 +35,7 @@ def iter_threaded(threads: int, input_dict: Dict[str, Union[Iterable, Sized]]):
     return decorator
 
 
-def iter_process(input_dict: Dict[str, Union[Iterable, Sized]]):
+def iter_process(**kwargs):
     """ Parallelize function call using provided kwargs input dict. All non-kwargs
     are not adjusted. Expected input is dict mapping to list of inputs to try.
 
@@ -43,17 +43,17 @@ def iter_process(input_dict: Dict[str, Union[Iterable, Sized]]):
 
     Uses asyncio and maintains call running over single thread
 
-    :param input_dict: arg_name: List[inputs...]
+    :param kwargs: Keyword arguments to override in function
     :raises: AttributeError for improperly formatted input data
     :return: Decorated function
     """
     # Validate input dict when code is read in
-    _validate_input_dict(input_dict)
+    _validate_input_dict(kwargs)
 
     def decorator(func: Callable):
-        def fxn(*args, **kwargs):
+        def fxn(*args, **kws):
             args = list(args)
-            return asyncio.run(_runner(input_dict, func, args, kwargs))
+            return asyncio.run(_runner(kwargs, func, args, kws))
 
         return fxn
 
@@ -67,11 +67,7 @@ def _validate_input_dict(input_dict: Dict[str, Union[Iterable, Sized]]):
     :param input_dict: Input data to pass to functions
     :raises: AttributeError if improperly formatted data
     """
-    if not isinstance(input_dict, dict):
-        raise AttributeError("Input data must be in dict format")
     input_ids = tuple(input_dict.keys())
-    if len(input_ids) == 0:
-        raise AttributeError("Cannot parallelize without provided input options")
     _len = len(input_dict[input_ids[0]])
     for key in input_ids[1:]:
         if len(input_dict[key]) != _len:
