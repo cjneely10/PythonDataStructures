@@ -49,3 +49,13 @@ class Test(TestCase):
                 pass
 
             out()
+
+    def test_raises_within_function(self):
+
+        @iter_threaded(3, value=[1, 2, 3])
+        def issue(value: int):
+            if value == 2:
+                raise ArithmeticError
+            return value
+
+        self.assertEqual([1, ArithmeticError, 3], issue())

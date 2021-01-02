@@ -14,8 +14,8 @@ def iter_threaded(threads: int, **kwargs):
 
     :param threads: Number of threads to launch to complete task list
     :param kwargs: Keyword arguments to override in function
-    :raises: AttributeError for improperly formatted input data
-    :return: Decorated function
+    :return: List of results from each parallelized function call. Result may be a class of exception
+    if call failed
     """
     if not isinstance(threads, int) or threads <= 0:
         raise TypeError("Must pass positive thread value")
@@ -28,7 +28,15 @@ def iter_threaded(threads: int, **kwargs):
             with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
                 output_data_futures = [executor.submit(func, *args, **arg_combo) for arg_combo in fxn_call_list]
                 concurrent.futures.wait(output_data_futures)
-                return [output.result() for output in output_data_futures]
+                out = []
+                for output in output_data_futures:
+                    try:
+                        out.append(output.result())
+                        # pylint: disable=broad-except
+                        # Goal is to catch all broad exceptions
+                    except BaseException as err:
+                        out.append(type(err))
+                return out
 
         return fxn
 
