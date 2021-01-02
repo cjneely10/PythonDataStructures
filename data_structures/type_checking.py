@@ -42,7 +42,7 @@ class TypeChecker:
             specified_types = get_type_hints(func)
             # Calculate id of function data
             cache_add_id = hash(tuple((*(type(arg) for arg in args), *(type(arg) for arg in kwargs.values()),
-                               id(func), func.__name__)))
+                                       id(func), func.__name__)))
             # Update call count
             TypeChecker._total_calls += 1
             # Check if cached
