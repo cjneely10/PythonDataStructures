@@ -39,6 +39,8 @@ def iter_process(input_dict: Dict[str, List[object]]):
     """ Parallelize function call using provided kwargs input dict. All non-kwargs
     are not adjusted. Expected input is dict mapping to list of inputs to try.
 
+    Must decorate an async def function for valid functionality
+
     Uses asyncio and maintains call running over single thread
 
     :param input_dict: arg_name: List[inputs...]
