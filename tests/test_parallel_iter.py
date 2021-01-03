@@ -1,13 +1,13 @@
 import random
 from unittest import TestCase
 from data_structures.type_checking import TypeChecker
-from data_structures.parallel_iter import iter_process, iter_threaded, filter_output
+from data_structures.parallel_iter import iter_async, iter_threaded, filter_output
 
 
 class Test(TestCase):
     def test_parallelize(self):
 
-        @iter_process(start_pos=(10, 20, 30, 40), end_pos=(100, 110, 120, 130))
+        @iter_async(start_pos=(10, 20, 30, 40), end_pos=(100, 110, 120, 130))
         async def out(start_pos: int, end_pos: int):
             threshold = random.randint(1000, 10000)
             rand_val = random.randint(1, 10000)
@@ -21,7 +21,7 @@ class Test(TestCase):
 
         with self.assertRaises(AttributeError):
 
-            @iter_process(start_pos=(10, 20, 30), end_pos=(100, 110, 120, 130))
+            @iter_async(start_pos=(10, 20, 30), end_pos=(100, 110, 120, 130))
             async def out(start_pos: int, end_pos: int):
                 pass
 

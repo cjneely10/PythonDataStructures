@@ -56,7 +56,7 @@ def filter_output(output, ignore_types: Sequence[type] = (Exception,)) -> Genera
             yield out_value
 
 
-def iter_process(**kwargs: InputSequence):
+def iter_async(**kwargs: InputSequence):
     """ Parallelize function call using provided kwargs input dict. All non-kwargs
     are not adjusted. Expected input is dict mapping to list of inputs to try.
 
