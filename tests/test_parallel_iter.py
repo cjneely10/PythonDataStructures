@@ -38,7 +38,7 @@ class Test(TestCase):
                 rand_val = random.randint(1, 10000)
             return start_pos, end_pos
 
-        self.assertEqual([(10, 100), (20, 110), (30, 120), (40, 130)], out())
+        self.assertEqual([(10, 100), (20, 110), (30, 120), (40, 130)], list(out()))
 
     def test_malformed_threading(self):
 
@@ -58,7 +58,7 @@ class Test(TestCase):
                 raise ArithmeticError
             return value
 
-        self.assertEqual([1, ArithmeticError, 3], issue())
+        self.assertEqual([1, ArithmeticError, 3], list(issue()))
 
     def test_filter_output(self):
 
@@ -68,4 +68,4 @@ class Test(TestCase):
                 raise ArithmeticError
             return value
 
-        self.assertEqual([1, 3], filter_output(issue(), ignore_types=(ArithmeticError,)))
+        self.assertEqual([1, 3], list(filter_output(issue(), ignore_types=(ArithmeticError,))))

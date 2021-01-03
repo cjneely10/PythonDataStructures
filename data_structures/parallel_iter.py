@@ -3,14 +3,15 @@ Module has various decorators to parallelize function/method calls
 """
 import asyncio
 import concurrent.futures
-from typing import Callable, Dict, List, Optional, Sequence
+from typing import Callable, Dict, List, Optional, Sequence, Generator
 
 InputSequence = Sequence
 
 
 def iter_threaded(threads: int, **kwargs: InputSequence):
     """ Parallelize function call using provided kwargs input dict. All non-kwargs
-    are not adjusted. Expected input is dict mapping to list of inputs to try
+    are not adjusted. Each kwarg passed is expected to be a subclass of Sequence, and all kwargs
+    are expected to have the same input length.
 
     Uses concurrent.futures and broadcasts calls across multiple threads
 
@@ -30,29 +31,29 @@ def iter_threaded(threads: int, **kwargs: InputSequence):
             with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
                 output_data_futures = [executor.submit(func, *args, **arg_combo) for arg_combo in fxn_call_list]
                 concurrent.futures.wait(output_data_futures)
-                out = []
                 for output in output_data_futures:
+                    # Goal is to catch all broad exceptions
                     try:
-                        out.append(output.result())
+                        yield output.result()
                         # pylint: disable=broad-except
-                        # Goal is to catch all broad exceptions
                     except BaseException as err:
-                        out.append(type(err))
-                return out
+                        yield type(err)
 
         return fxn
 
     return decorator
 
 
-def filter_output(output, ignore_types: Sequence[type] = (Exception,)):
+def filter_output(output: Generator, ignore_types: Sequence[type] = (Exception,)) -> Generator:
     """ Filter list of all objects with types in ignore_types and return new list
 
     :param output: Output from parallelized function
     :param ignore_types: Types to ignore
     :return: List of filtered output
     """
-    return [out_value for out_value in output if out_value not in ignore_types]
+    for out_value in output:
+        if out_value not in ignore_types:
+            yield out_value
 
 
 def iter_process(**kwargs: InputSequence):
