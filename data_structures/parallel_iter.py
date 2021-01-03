@@ -45,7 +45,7 @@ def iter_threaded(threads: int, **kwargs: InputSequence):
     return decorator
 
 
-def filter_output(output: List[object], ignore_types: Sequence[type] = (Exception,)):
+def filter_output(output, ignore_types: Sequence[type] = (Exception,)):
     """ Filter list of all objects with types in ignore_types and return new list
 
     :param output: Output from parallelized function
