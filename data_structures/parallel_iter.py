@@ -17,7 +17,7 @@ def iter_threaded(threads: int, **kwargs: InputSequence):
 
     :param threads: Number of threads to launch to complete task list
     :param kwargs: Keyword arguments to override in function
-    :return: List of results from each parallelized function call. Result may be a class of exception
+    :return: Generator from each parallelized function call. Result may be a class of exception
     if call failed
     """
     if not isinstance(threads, int) or threads <= 0:
@@ -45,7 +45,7 @@ def iter_threaded(threads: int, **kwargs: InputSequence):
 
 
 def filter_output(output, ignore_types: Sequence[type] = (Exception,)) -> Generator:
-    """ Filter list of all objects with types in ignore_types and return new list
+    """ Filter objects with types in ignore_types and return a generator over filtered result
 
     :param output: Output from parallelized function
     :param ignore_types: Types to ignore
