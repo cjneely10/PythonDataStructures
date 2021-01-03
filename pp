@@ -1,1 +1,0 @@
-/home/kmarvos/miniconda3/envs/PythonDataStructures/bin/pylint data_structures
