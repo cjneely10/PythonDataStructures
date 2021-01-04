@@ -9,17 +9,18 @@ InputSequence = Sequence
 
 
 def iter_threaded(threads: int, ignore_types: Optional[Sequence[type]] = None, **kwargs: InputSequence):
-    """ Parallelize function call using provided kwargs input dict. All non-kwargs
-    are not adjusted. Each kwarg passed is expected to be a subclass of Sequence, and all kwargs
-    are expected to have the same input length.
+    """ Parallelize function call using provided kwargs input dict.
+    All args/kwargs not provided are not adjusted.
+    Each kwarg passed is expected to be a subclass of Sequence, and all kwargs are expected to have the
+    same input length.
 
     Uses concurrent.futures and broadcasts calls across multiple threads
 
     :param threads: Number of threads to launch to complete task list
-    :param ignore_types:
+    :param ignore_types: Iterable of return types/Exception types to handle in parallelized call
     :param kwargs: Keyword arguments to override in function
-    :return: Generator from each parallelized function call. Result may be a class of exception
-    if call failed
+    :raises: AttributeError for improperly formatted input data
+    :return: Generator over results from each parallelized function call (in order)
     """
     if not isinstance(threads, int) or threads <= 0:
         raise TypeError("Must pass positive thread value")
