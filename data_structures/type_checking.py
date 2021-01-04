@@ -146,7 +146,8 @@ class TypeChecker:
         if getattr(arg_type, "__origin__", None) is not None:
             if "Union" in str(arg_type) and not TypeChecker._check_union(arg_type, output):
                 raise TypeError(err_string.format(" or ".join(list(map(str, get_args(arg_type))))))
-            if "Union" not in str(arg_type) and not isinstance(output, arg_type.__origin__):
+            if "Union" not in str(arg_type) and not (isinstance(output, arg_type.__origin__)
+                                                     or issubclass(type(output), arg_type.__origin__)):
                 raise TypeError(err_string.format(arg_type))
         else:
             if not (isinstance(output, arg_type) or issubclass(type(output), arg_type)):
