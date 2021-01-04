@@ -3,12 +3,12 @@ Module has various decorators to parallelize function/method calls
 """
 import asyncio
 import concurrent.futures
-from typing import Callable, Dict, List, Optional, Sequence, Generator
+from typing import Callable, Dict, List, Optional, Sequence
 
 InputSequence = Sequence
 
 
-def iter_threaded(threads: int, **kwargs: InputSequence):
+def iter_threaded(threads: int, ignore_types: Optional[Sequence[type]] = None, **kwargs: InputSequence):
     """ Parallelize function call using provided kwargs input dict. All non-kwargs
     are not adjusted. Each kwarg passed is expected to be a subclass of Sequence, and all kwargs
     are expected to have the same input length.
@@ -16,6 +16,7 @@ def iter_threaded(threads: int, **kwargs: InputSequence):
     Uses concurrent.futures and broadcasts calls across multiple threads
 
     :param threads: Number of threads to launch to complete task list
+    :param ignore_types:
     :param kwargs: Keyword arguments to override in function
     :return: Generator from each parallelized function call. Result may be a class of exception
     if call failed
@@ -37,23 +38,13 @@ def iter_threaded(threads: int, **kwargs: InputSequence):
                         yield output.result()
                         # pylint: disable=broad-except
                     except BaseException as err:
-                        yield type(err)
+                        if ignore_types is not None and type(err) in ignore_types:
+                            continue
+                        raise type(err) from err
 
         return fxn
 
     return decorator
-
-
-def filter_output(output, ignore_types: Sequence[type] = (Exception,)) -> Generator:
-    """ Filter objects with types in ignore_types and return a generator over filtered result
-
-    :param output: Output from parallelized function
-    :param ignore_types: Types to ignore
-    :return: List of filtered output
-    """
-    for out_value in output:
-        if out_value not in ignore_types:
-            yield out_value
 
 
 def iter_async(**kwargs: InputSequence):
