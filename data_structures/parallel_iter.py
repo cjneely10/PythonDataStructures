@@ -26,6 +26,10 @@ def iter_threaded(threads: int, ignore_types: Optional[Sequence[type]] = None, *
         raise TypeError("Must pass positive thread value")
     # Validate input dict when code is read in
     _validate_input_dict(kwargs)
+    if ignore_types is not None:
+        ignore_types = set(ignore_types)
+    else:
+        ignore_types = {}
 
     def decorator(func: Callable):
         def fxn(*args, **kws):
@@ -39,7 +43,7 @@ def iter_threaded(threads: int, ignore_types: Optional[Sequence[type]] = None, *
                         yield output.result()
                         # pylint: disable=broad-except
                     except BaseException as err:
-                        if ignore_types is not None and type(err) in ignore_types:
+                        if type(err) in ignore_types:
                             continue
                         raise type(err) from err
 
