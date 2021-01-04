@@ -69,4 +69,16 @@ class Test(TestCase):
                     raise ArithmeticError
                 return value
 
-            self.assertEqual([1, 3], list(issue()))
+            list(issue())
+
+    def test_ignore_type(self):
+
+        @iter_threaded(3, ignore_types=(None, str), value=[1, 2, 3])
+        def issue(value: int):
+            if value == 2:
+                return None
+            if value == 3:
+                return ""
+            return value
+
+        self.assertEqual([1], list(issue()))

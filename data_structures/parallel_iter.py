@@ -3,12 +3,12 @@ Module has various decorators to parallelize function/method calls
 """
 import asyncio
 import concurrent.futures
-from typing import Callable, Dict, List, Optional, Sequence
+from typing import Callable, Dict, List, Optional, Sequence, Iterable, Union
 
 InputSequence = Sequence
 
 
-def iter_threaded(threads: int, ignore_types: Optional[Sequence[type]] = None, **kwargs: InputSequence):
+def iter_threaded(threads: int, ignore_types: Optional[Iterable[Union[type, None]]] = None, **kwargs: InputSequence):
     """ Parallelize function call using provided kwargs input dict.
     All args/kwargs not provided are not adjusted.
     Each kwarg passed is expected to be a subclass of Sequence, and all kwargs are expected to have the
@@ -27,7 +27,9 @@ def iter_threaded(threads: int, ignore_types: Optional[Sequence[type]] = None, *
     # Validate input dict when code is read in
     _validate_input_dict(kwargs)
     if ignore_types is not None:
-        ignore_types = set(ignore_types)
+        ignore_types = {_type
+                        if isinstance(_type, type) else type(_type)
+                        for _type in ignore_types}
     else:
         ignore_types = {}
 
@@ -40,7 +42,10 @@ def iter_threaded(threads: int, ignore_types: Optional[Sequence[type]] = None, *
                 for output in output_data_futures:
                     # Goal is to catch all broad exceptions
                     try:
-                        yield output.result()
+                        result = output.result()
+                        if type(result) in ignore_types:
+                            continue
+                        yield result
                         # pylint: disable=broad-except
                     except BaseException as err:
                         if type(err) in ignore_types:
@@ -91,7 +96,7 @@ def _validate_input_dict(input_dict: Dict[str, InputSequence]):
             raise AttributeError("Input data sizes are not identical")
 
 
-def _build_call_list(input_dict: Dict[str, InputSequence],kwargs: Dict[str, object]) -> List[Dict[str, object]]:
+def _build_call_list(input_dict: Dict[str, InputSequence], kwargs: Dict[str, object]) -> List[Dict[str, object]]:
     """ Iterate over passed args to generate function call. Check lengths of args to make sure
     they are all the same
 
