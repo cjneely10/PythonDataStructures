@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, Set
 from unittest import TestCase
 from data_structures.mutable_string import Str
 from data_structures.type_checking import TypeChecker
@@ -135,3 +135,21 @@ class Test(TestCase):
 
         with self.assertRaises(TypeError):
             print(type(fxn(Val())))
+
+    def test_nested(self):
+
+        @TypeChecker()
+        def fxn(value: Set[str]):
+            return value
+
+        fxn({"1", "2"})
+        self.assertTrue(True)
+
+    def test_bad_collection(self):
+
+        @TypeChecker()
+        def fxn(value: Set[str]):
+            return value
+
+        with self.assertRaises(TypeError):
+            fxn(["1", "2"])
