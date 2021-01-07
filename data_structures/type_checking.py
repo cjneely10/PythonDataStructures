@@ -13,7 +13,7 @@ class TypeChecker:
     """
     # Default error strings
     ERR_STR = "Argument '%s' must be of type {}"
-    RETURN_ERR_STR = "Returned object must be of type {}"
+    RETURN_ERR_STR = "Returned object must be of type {} but '%s' was found"
     # Default cache size
     _max_cache_size = 256
     # Tracking stats for current TypeChecker
@@ -62,7 +62,8 @@ class TypeChecker:
             output = func(*args, **kwargs)
             # Confirm output is valid
             if "return" in specified_types.keys():
-                TypeChecker._validate_type(specified_types["return"], output, TypeChecker.RETURN_ERR_STR)
+                TypeChecker._validate_type(specified_types["return"], output,
+                                           TypeChecker.RETURN_ERR_STR % str(type(output)))
             # Add successful call to cache
             TypeChecker._cache.add(cache_add_id)
             return output
