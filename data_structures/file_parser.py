@@ -1,6 +1,7 @@
 """
 Module holds class to parse data files into packaged struct for access
 """
+import os
 from pathlib import Path
 from typing import Iterator, Optional, List
 
@@ -30,21 +31,38 @@ class FileParser:
             """
             return self._data[item]
 
-    def __init__(self, file: str, line_pattern: str, has_header: bool, sep="\t", comment: Optional[str] = "#"):
-        """
+    def __init__(self, file: str, line_pattern: str, has_header: bool, sep="\t", comment: Optional[str] = "#",
+                 raise_on_fail: bool = True):
+        """ Create FileParser with specified file. Use the provided line_pattern to parse each line into proper types
 
-        :param file:
-        :param line_pattern:
-        :param has_header:
-        :param sep:
-        :param comment:
+        Examples:
+
+        1.0\t1\tmeow   ==>   val:float|val2:int|val3:str (sep="\t")
+        remove_str-1   ==>   val:str|val2:int (sep="-")
+        remove_str-1\tremove_str-2   ==>   val:str`-val2:int|val3:str`-val4:int (sep="\t")
+        1.0\t2.0\t...(a bunch of times)   ==>   valn:float|...
+
+        :param file: File to parse, must exist
+        :param line_pattern: Pattern to use in parsing each line.
+        :param has_header: Store header if found
+        :param sep: Separator used across file (if a header line is present, must also be in header)
+        :param comment: Character beginning line that signifies it as a comment
+        :param raise_on_fail: If pattern fails to parse line, will throw error or continue based on value
+        :raises: FileNotFoundError
         """
+        file = str(Path(file).resolve())
+        if not os.path.exists(file):
+            raise FileNotFoundError
         self.comment_char = comment
-        self.file_ptr = open(str(Path(file).resolve()), "r")
+        self.file_ptr = open(file, "r")
+        self.line_num = 0
         self.sep_char = sep
         self.header: Optional[List[str]] = None
         if has_header:
-            self.header = next(self.file_ptr).split(sep)
+            self.header = self._next_line().split(sep)
+        self.comments = []
+        self.raise_on_fail = raise_on_fail
+        self.pattern = line_pattern
 
     def __iter__(self) -> Iterator:
         """
@@ -71,6 +89,17 @@ class FileParser:
         Close context manager and stored file
         """
         self.file_ptr.close()
+
+    def _next_line(self) -> Optional[str]:
+        """ Get next line in file and increment internal line count
+
+        :return: Next line in file
+        """
+        self.line_num += 1
+        try:
+            return next(self.file_ptr)
+        except StopIteration:
+            return None
 
     def _parse_line_pattern(self, line_pattern: str):
         pass

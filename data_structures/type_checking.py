@@ -10,7 +10,9 @@ from typing import get_type_hints, Callable, Union, Type, get_args
 class TypeChecker:
     """
     Class TypeChecker has simple decorator method to check if function has been called with specified parameters
-    and to handle type checking if not yet called
+    and to handle type checking if not yet called.
+
+    If TYPECHECKER=off is set as an environment variable, then no runtime checking will be handled.
     """
     # Default error strings
     ERR_STR = "Argument '%s' must be of type {}"
