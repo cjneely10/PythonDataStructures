@@ -164,6 +164,13 @@ class Str(MutableSequence):
         """
         return Str("".join(self._data).format(*args, **kwargs))
 
+    def clear(self):
+        """
+        Clears contents of stored buffer
+        """
+        self._data = []
+        self._pos = 0
+
     def __str__(self) -> str:
         """ Get Str as str
 

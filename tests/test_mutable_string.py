@@ -183,3 +183,9 @@ class TestStr(TestCase):
 
         for i in range(100):
             self.assertEqual(ref_list[i], data)
+
+    def test_clear(self):
+        data = Str("Vroom!")
+        data.clear()
+
+        self.assertEqual(data, "")
