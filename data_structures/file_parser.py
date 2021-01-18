@@ -25,7 +25,7 @@ class FileParser:
             """
             self.tokens: List[FileParser.TokenParser.Token] = []
             self.separators: List[str] = []
-            self.pos = 0
+            self.pos = -1
             self._parse(line_pattern)
 
         def _parse(self, line_pattern: str):
@@ -34,6 +34,8 @@ class FileParser:
             :param line_pattern:
             :return:
             """
+            for i, char in enumerate(line_pattern):
+                pass
             self.tokens.reverse()
             self.separators.reverse()
 
@@ -42,7 +44,7 @@ class FileParser:
 
             :return: Parser as iterator
             """
-            self.pos = 0
+            self.pos = -1
             return self
 
         def __next__(self) -> "FileParser.TokenParser.Token":
@@ -50,10 +52,10 @@ class FileParser:
 
             :return:
             """
-            if len(self.tokens) == 0:
-                raise StopIteration
             self.pos += 1
-            return self.token[self.pos]
+            if len(self.tokens) == self.pos:
+                raise StopIteration
+            return self.tokens[self.pos]
 
     class Parsed:
         """
@@ -90,10 +92,13 @@ class FileParser:
 
         Examples:
 
-        1.0\t1\tmeow   ==>   $val:float|$val2:int|$val3:str (sep="\t")
+        1.0,1,meow   ==>   $val:float|$val2:int|$val3:str (sep=",")
+
         remove_str-1   ==>   $val:str|$val2:int (sep="-")
-        remove_str-1\tremove_str-2   ==>   $val:str`-`$val2:int|$val3:str`-`$val4:int (sep="\t", internal="-")
-        1.0\t2.0\t...(a bunch of times)   ==>   $valn:float|*
+
+        remove_str-1,remove_str-2   ==>   $val:str'-'$val2:int|$val3:str'-'$val4:int (sep=",", internal="-")
+
+        1.0,2.0,...(a bunch of times)   ==>   $valn:float|* (sep=",")
 
         :param file: File to parse, must exist
         :param line_pattern: Pattern to use in parsing each line.
@@ -114,7 +119,7 @@ class FileParser:
             self.header = next(self.file_ptr).split(sep)
         self.comments = []
         self.raise_on_fail = raise_on_fail
-        self.pattern = line_pattern
+        self.parser = FileParser.TokenParser(line_pattern)
 
     def __iter__(self) -> Iterator:
         """
@@ -122,12 +127,12 @@ class FileParser:
         """
         return self
 
-    def __next__(self):
+    def __next__(self) -> "FileParser.Parsed":
         """ Get next parsed line in file
 
         :return: Line parsed into LineParser object
         """
-        return FileParser.Parsed()
+        return self.Parsed()
 
     def __enter__(self):
         """ Context manager creation for ease in use
@@ -141,10 +146,3 @@ class FileParser:
         Close context manager and stored file
         """
         self.file_ptr.close()
-
-    def _parse_line_pattern(self):
-        """ Parse line pattern for tokens
-
-        :return:
-        """
-        pass
