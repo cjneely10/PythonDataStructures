@@ -31,6 +31,14 @@ class FileParser:
             """
             return self._data[item]
 
+        def __setitem__(self, key, value):
+            """ Set value in parser
+
+            :param key: Name assigned to data
+            :param value: Value to assign
+            """
+            self._data[key] = value
+
     def __init__(self, file: str, line_pattern: str, has_header: bool, sep="\t", comment: Optional[str] = "#",
                  raise_on_fail: bool = True):
         """ Create FileParser with specified file. Use the provided line_pattern to parse each line into proper types
@@ -55,11 +63,10 @@ class FileParser:
             raise FileNotFoundError
         self.comment_char = comment
         self.file_ptr = open(file, "r")
-        self.line_num = 0
         self.sep_char = sep
         self.header: Optional[List[str]] = None
         if has_header:
-            self.header = self._next_line().split(sep)
+            self.header = next(self.file_ptr).split(sep)
         self.comments = []
         self.raise_on_fail = raise_on_fail
         self.pattern = line_pattern
@@ -84,22 +91,15 @@ class FileParser:
         """
         return self.__iter__()
 
-    def __exit__(self):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         """
         Close context manager and stored file
         """
         self.file_ptr.close()
 
-    def _next_line(self) -> Optional[str]:
-        """ Get next line in file and increment internal line count
+    def _parse_line_pattern(self):
+        """ Parse line pattern for tokens
 
-        :return: Next line in file
+        :return:
         """
-        self.line_num += 1
-        try:
-            return next(self.file_ptr)
-        except StopIteration:
-            return None
-
-    def _parse_line_pattern(self, line_pattern: str):
         pass
