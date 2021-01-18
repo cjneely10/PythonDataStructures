@@ -162,3 +162,15 @@ class Test(TestCase):
 
         with self.assertRaises(TypeError):
             fxn(["1", "2"])
+
+    def test_checker_off(self):
+        import os
+        os.environ["TYPECHECKER"] = "off"
+
+        @TypeChecker()
+        def fxn(value: Set[str]):
+            return value
+
+        self.assertEqual(["1", "2"], fxn(["1", "2"]))
+
+        os.environ.pop("TYPECHECKER")

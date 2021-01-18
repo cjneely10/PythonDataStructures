@@ -1,6 +1,7 @@
 """
 Module holds class TypeChecker for simple function type check at runtime prior to function call
 """
+import os
 import inspect
 from collections import namedtuple
 from typing import get_type_hints, Callable, Union, Type, get_args
@@ -35,6 +36,9 @@ class TypeChecker:
         """
 
         def fxn(*args, **kwargs):
+            checker_on = os.environ.get("TYPECHECKER")
+            if checker_on is not None and checker_on == "off":
+                return func(*args, **kwargs)
             TypeChecker._clear_if_surpassed_max_size()
             # Get passed args as dict
             passed_args = inspect.signature(func).bind(*args, **kwargs).arguments
