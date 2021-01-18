@@ -45,10 +45,10 @@ class FileParser:
 
         Examples:
 
-        1.0\t1\tmeow   ==>   val:float|val2:int|val3:str (sep="\t")
-        remove_str-1   ==>   val:str|val2:int (sep="-")
-        remove_str-1\tremove_str-2   ==>   val:str`-val2:int|val3:str`-val4:int (sep="\t")
-        1.0\t2.0\t...(a bunch of times)   ==>   valn:float|...
+        1.0\t1\tmeow   ==>   $val:float|$val2:int|$val3:str (sep="\t")
+        remove_str-1   ==>   $val:str|$val2:int (sep="-")
+        remove_str-1\tremove_str-2   ==>   $val:str`-$val2:int|$val3:str`-$val4:int (sep="\t")
+        1.0\t2.0\t...(a bunch of times)   ==>   $valn:float|*
 
         :param file: File to parse, must exist
         :param line_pattern: Pattern to use in parsing each line.
