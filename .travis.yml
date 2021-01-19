@@ -7,3 +7,5 @@ install:
 script:
   - pytest --cov=data_structures tests/
   - pylint data_structures
+after_success:
+  bash <(curl -s https://codecov.io/bash)
