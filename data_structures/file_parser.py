@@ -94,7 +94,12 @@ class TokenParser:
             i += 1
 
     def parse(self, line: str) -> Dict[str, object]:
-        pass
+        """ Parse line using stored data from initially provided pattern
+
+        :param line: Line of file to parse, including newline
+        :return: Dictionary of parsed data using provided name and type
+        """
+        return {self.separators[0]: line}
 
     @property
     def pattern(self) -> Tuple[List["TokenParser.ParsedToken"], List[str]]:
