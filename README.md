@@ -5,6 +5,8 @@
 
 This repository contains several data structures that are (somewhat) useful when developing code.
 
+All code is currently in development and is not (particularly) meant for general use...yet
+
 Currently:
 
 Mutable String
@@ -66,4 +68,5 @@ list(run()) == [0,1,3,4]  # Outputs True
 
 See the `tests` suite for more examples on using each.
 
-See `docs/build/latex/pythondatastructures.pdf` for more official documentation.
+See [the documentation](https://github.com/cjneely10/PythonDataStructures/blob/master/docs/build/latex/pythondatastructures.pdf)
+ for more information.
