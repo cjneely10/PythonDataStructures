@@ -53,7 +53,7 @@ class TokenParser:
 
     __slots__ = ["tokens", "separators", "pos", "token_types"]
 
-    def __init__(self, line_pattern: str):
+    def __init__(self, line_pattern: str, sep: str):
         """
         Create empty tokens/separators stacks (stacks implemented as lists)
         """
@@ -61,9 +61,9 @@ class TokenParser:
         self.tokens: List[TokenParser.ParsedToken] = []
         self.separators: List[str] = []
         # Parse line pattern or raise error if issue
-        self._parse_line_pattern(line_pattern)
+        self._parse_line_pattern(line_pattern, sep)
 
-    def _parse_line_pattern(self, line_pattern: str):
+    def _parse_line_pattern(self, line_pattern: str, sep: str):
         """ Per line pattern provided in FileParser.__init__, parse into tokens and separators
 
         :param line_pattern:
@@ -83,6 +83,9 @@ class TokenParser:
                     i += 1
                 type_end_pos = i
                 sep_val = i
+                if i < len(line_pattern) and line_pattern[i] == TokenParser.Token.SEP_INT.value:
+                    sep_val = i + 1
+                    i += 2
                 self.tokens.append(
                     TokenParser.ParsedToken(
                         line_pattern[name_start_pos: name_end_pos],
@@ -90,7 +93,10 @@ class TokenParser:
                     )
                 )
                 if i < len(line_pattern):
-                    self.separators.append(line_pattern[sep_val])
+                    if line_pattern[sep_val] == TokenParser.Token.SEP_INT.value:
+                        self.separators.append("'")
+                    else:
+                        self.separators.append(sep)
             i += 1
 
     def parse(self, line: str) -> Dict[str, object]:
@@ -99,7 +105,21 @@ class TokenParser:
         :param line: Line of file to parse, including newline
         :return: Dictionary of parsed data using provided name and type
         """
-        return {self.separators[0]: line}
+        i = 0
+        sep_pos = 0
+        tokens_pos = 0
+        out = {}
+        while sep_pos < len(self.separators) and i < len(line):
+            start_pos = i
+            while i < len(line) and line[i] != self.separators[sep_pos]:
+                i += 1
+            if i < len(line):
+                out[self.tokens[tokens_pos].token_name] = self.tokens[tokens_pos].token_type(line[start_pos: i])
+                tokens_pos += 1
+            sep_pos += 1
+            i += 1
+        out[self.tokens[tokens_pos].token_name] = self.tokens[tokens_pos].token_type(line[i:])
+        return out
 
     @property
     def pattern(self) -> Tuple[List["TokenParser.ParsedToken"], List[str]]:
@@ -184,7 +204,7 @@ class FileParser:
         if has_header:
             self.header = line.split(sep)
         # Generate parser from provided line_pattern
-        self.parser = TokenParser(line_pattern)
+        self.parser = TokenParser(line_pattern, sep)
 
     def _get_comments(self):
         """
