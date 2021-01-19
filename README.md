@@ -70,7 +70,7 @@ Error handling is automated to have "allowed" silent failures
 @iter_threaded(4, value=range(5), ignore_types=(None,))
 def run(value):
     if value != 2:
-        print(value)
+        return value
 
 list(run()) == [0,1,3,4]  # Outputs True
 ```
