@@ -70,28 +70,35 @@ class TokenParser:
         """
         i = 0
         while i < len(line_pattern):
+            # Line pattern $expr:value|
             if line_pattern[i] == TokenParser.Token.EXP_START.value:
+                # Gather name to assign to data
                 i += 1
                 name_start_pos = i
                 while i < len(line_pattern) and line_pattern[i] != TokenParser.Token.TYPE_START.value:
                     i += 1
                 name_end_pos = i
                 i += 1
+                # Gather type to assign
                 type_start_pos = i
                 while i < len(line_pattern) \
                         and line_pattern[i] not in (TokenParser.Token.SEP.value, TokenParser.Token.SEP_INT.value):
                     i += 1
                 type_end_pos = i
+                # Store position of separator character
                 sep_val = i
+                # Skip over added internal-separator character at end
                 if i < len(line_pattern) and line_pattern[i] == TokenParser.Token.SEP_INT.value:
                     sep_val = i + 1
                     i += 2
+                # Create parsed token and store in queue
                 self.tokens.append(
                     TokenParser.ParsedToken(
                         line_pattern[name_start_pos: name_end_pos],
                         __builtins__[line_pattern[type_start_pos: type_end_pos]]
                     )
                 )
+                # Store separator character in queue
                 if i < len(line_pattern):
                     if line_pattern[sep_val] == TokenParser.Token.SEP_INT.value:
                         self.separators.append("'")
