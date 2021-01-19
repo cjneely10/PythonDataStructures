@@ -16,7 +16,7 @@ pip install PythonDataStructures
 
 ## Currently:
 
-Mutable String
+### Mutable String
 
 ```
 data = Str("one")
@@ -24,7 +24,9 @@ data[1] = "b"
 print(data)  # Outputs "obe"
 ```
 
-Run-time Type Checking
+---
+
+### Run-time Type Checking
 
 ```
 @TypeChecker()
@@ -35,7 +37,9 @@ run("a")  # Raises TypeError
 
 ```
 
-Parallel Iteration
+---
+
+### Parallel Iteration
 
 ```
 @iter_threaded(4, value=range(10))
