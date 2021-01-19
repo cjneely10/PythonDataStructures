@@ -1,0 +1,12 @@
+\indexentry{iter\_threaded() (in module data\_structures.parallel\_iter)@\spxentry{iter\_threaded()}\spxextra{in module data\_structures.parallel\_iter}|hyperpage}{1}
+\indexentry{iter\_async() (in module data\_structures.parallel\_iter)@\spxentry{iter\_async()}\spxextra{in module data\_structures.parallel\_iter}|hyperpage}{1}
+\indexentry{\_\_call\_\_() (in module data\_structures.type\_checking.TypeChecker)@\spxentry{\_\_call\_\_()}\spxextra{in module data\_structures.type\_checking.TypeChecker}|hyperpage}{3}
+\indexentry{module@\spxentry{module}!data\_structures.mutable\_string@\spxentry{data\_structures.mutable\_string}|hyperpage}{5}
+\indexentry{data\_structures.mutable\_string@\spxentry{data\_structures.mutable\_string}!module@\spxentry{module}|hyperpage}{5}
+\indexentry{Str (class in data\_structures.mutable\_string)@\spxentry{Str}\spxextra{class in data\_structures.mutable\_string}|hyperpage}{5}
+\indexentry{clear() (data\_structures.mutable\_string.Str method)@\spxentry{clear()}\spxextra{data\_structures.mutable\_string.Str method}|hyperpage}{5}
+\indexentry{const() (data\_structures.mutable\_string.Str property)@\spxentry{const()}\spxextra{data\_structures.mutable\_string.Str property}|hyperpage}{5}
+\indexentry{format() (data\_structures.mutable\_string.Str method)@\spxentry{format()}\spxextra{data\_structures.mutable\_string.Str method}|hyperpage}{5}
+\indexentry{set\_const() (data\_structures.mutable\_string.Str method)@\spxentry{set\_const()}\spxextra{data\_structures.mutable\_string.Str method}|hyperpage}{5}
+\indexentry{split() (data\_structures.mutable\_string.Str method)@\spxentry{split()}\spxextra{data\_structures.mutable\_string.Str method}|hyperpage}{5}
+\indexentry{handle\_const() (in module data\_structures.mutable\_string)@\spxentry{handle\_const()}\spxextra{in module data\_structures.mutable\_string}|hyperpage}{5}
