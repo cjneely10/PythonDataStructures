@@ -3,6 +3,7 @@ Module holds class to parse data files into packaged struct for access
 """
 import os
 from pathlib import Path
+from enum import Enum, auto
 from collections import namedtuple
 from typing import Iterator, Optional, List
 
@@ -15,7 +16,16 @@ class FileParser:
         """
         Struct will parse line_pattern for tokens and maintain two stacks - one of expressions and one of separators
         """
-        __slots__ = ["tokens", "separators", "pos"]
+        class Tokens(Enum):
+            """
+            Enum class holds supported token types for each line in file
+            """
+            EXP_START = "$"
+            TYPE_START = ":"
+            SEP = "|"
+            SEP_INT = "'"
+
+        __slots__ = ["tokens", "separators", "pos", "token_types"]
         # Results tuple type to return from each successful iteration
         Token = namedtuple("Token", ["token", "type"])
 
@@ -23,6 +33,13 @@ class FileParser:
             """
             Create empty tokens/separators stacks (stacks implemented as lists)
             """
+            # Function to parse each specified supported token
+            self.token_types = {
+                FileParser.TokenParser.Tokens.EXP_START: (lambda _: _),
+                FileParser.TokenParser.Tokens.TYPE_START: (lambda _: _),
+                FileParser.TokenParser.Tokens.SEP: (lambda _: _),
+                FileParser.TokenParser.Tokens.SEP_INT: (lambda _: _),
+            }
             self.tokens: List[FileParser.TokenParser.Token] = []
             self.separators: List[str] = []
             self.pos = -1
@@ -32,10 +49,10 @@ class FileParser:
             """ Per line pattern provided in FileParser.__init__, parse into tokens and separators
 
             :param line_pattern:
-            :return:
             """
+            tokens = set(FileParser.TokenParser.token_types.keys())
             for i, char in enumerate(line_pattern):
-                pass
+                token_type = self.token_types.get(char)
             self.tokens.reverse()
             self.separators.reverse()
 
@@ -48,9 +65,10 @@ class FileParser:
             return self
 
         def __next__(self) -> "FileParser.TokenParser.Token":
-            """ R
+            """ Get next expected token within line
 
-            :return:
+            :raises: StopIteration at end of tokens list
+            :return: Token tuple consisting of token name and type
             """
             self.pos += 1
             if len(self.tokens) == self.pos:
@@ -76,15 +94,15 @@ class FileParser:
             :param item: Initial name assigned to data at position in line in file
             :return: Parsed input data
             """
-            return self._data[item]
+            return self._data.get(item, None)
 
-        def __setitem__(self, key, value):
-            """ Set value in parser
+        @property
+        def data(self) -> dict:
+            """ Get readable reference to internally stored data
 
-            :param key: Name assigned to data
-            :param value: Value to assign
+            :return: Internal data parsed to proper types
             """
-            self._data[key] = value
+            return self._data
 
     def __init__(self, file: str, line_pattern: str, has_header: bool, sep="\t", comment: Optional[str] = "#",
                  raise_on_fail: bool = True):
@@ -98,7 +116,9 @@ class FileParser:
 
         remove_str-1,remove_str-2   ==>   $val:str'-'$val2:int|$val3:str'-'$val4:int (sep=",", internal="-")
 
-        1.0,2.0,...(a bunch of times)   ==>   $valn:float|* (sep=",")
+        1.0,2.0,...(a bunch of times)   ==>   $val:float|* (sep=",")
+
+        The final line will generate val0-val(n-1) data accessors
 
         :param file: File to parse, must exist
         :param line_pattern: Pattern to use in parsing each line.
@@ -122,15 +142,16 @@ class FileParser:
         self.parser = FileParser.TokenParser(line_pattern)
 
     def __iter__(self) -> Iterator:
-        """
-        Create iterator over file
+        """ Create iterator over file
+
+        :return: Iterator
         """
         return self
 
     def __next__(self) -> "FileParser.Parsed":
         """ Get next parsed line in file
 
-        :return: Line parsed into LineParser object
+        :return: Line parsed into Parsed object
         """
         return self.Parsed()
 
