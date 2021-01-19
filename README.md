@@ -21,7 +21,7 @@ conda env create -f environment.yml
 conda activate PythonDataStructures
 ```
 
-or with `pip` (ensure Python 3.8.7):
+or with `pip` (ensure Python 3.8):
 
 ```
 pip install -r requirements.txt
