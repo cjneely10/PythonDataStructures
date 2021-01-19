@@ -5,7 +5,7 @@ import os
 from enum import Enum
 from pathlib import Path
 from collections import namedtuple
-from typing import Iterator, Optional, List, Generator
+from typing import Iterator, Optional, List, Dict
 
 
 class TokenParser:
@@ -31,16 +31,12 @@ class TokenParser:
         """
         Create empty tokens/separators stacks (stacks implemented as lists)
         """
-        # Function to parse each specified supported token
-        self.token_types = {
-            TokenParser.Token.EXP_START: (lambda i: _),
-            TokenParser.Token.TYPE_START: (lambda i: _),
-            TokenParser.Token.SEP: (lambda i: _),
-            TokenParser.Token.SEP_INT: (lambda i: _),
-        }
+        # Store tokens and separators encountered, assumed to be in alternating orders
         self.tokens: List[TokenParser.ParsedToken] = []
         self.separators: List[str] = []
+        # Beginning position in lists is before lists start - first incrementation brings to index 0
         self.pos = -1
+        # Parse line pattern or raise error if issue
         self._parse_line_pattern(line_pattern)
 
     def _parse_line_pattern(self, line_pattern: str):
@@ -50,14 +46,10 @@ class TokenParser:
         """
         token_as_strings = {token.value for token in TokenParser.Token}
         tokens_dict = {token.value: token for token in TokenParser.Token}
-        start_pos = {"i": 0}
-        for char in line_pattern:
-            if char in token_as_strings:
-                token_parsing_function = self.token_types.get(TokenParser.Token(tokens_dict[char]), None)
-                if token_parsing_function is not None:
-                    token_parsing_function(start_pos)
-
-            start_pos["i"] += 1
+        pos = {"i": 0}
+        while pos["i"] < len(line_pattern):
+            if line_pattern[pos["i"]] in token_as_strings:
+                pass
 
         # Reverse results for iteration
         self.tokens.reverse()
@@ -82,7 +74,7 @@ class TokenParser:
             raise StopIteration
         return self.tokens[self.pos]
 
-    def parse(self, line: str) -> Generator:
+    def parse(self, line: str) -> Dict[str, object]:
         pass
 
 
@@ -185,7 +177,7 @@ class FileParser:
         :return: Line parsed into Parsed object
         """
         line = self._get_comments()
-        return FileParser.Parsed({val_name: value for val_name, value in self.parser.parse(line)})
+        return FileParser.Parsed(self.parser.parse(line))
 
     def __enter__(self):
         """ Context manager creation for ease in use
