@@ -1,7 +1,7 @@
 .. paralleliter-class
 
-Parallel Iteration API
-======================
+Parallel Iteration Documentation
+================================
 
 .. autofunction:: data_structures.parallel_iter.iter_threaded
 

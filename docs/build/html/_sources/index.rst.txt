@@ -11,6 +11,7 @@ Welcome to PythonDataStructures's documentation!
    :caption: Contents:
 
    api/parallel_iter
+   api/type_checking
 
 
 This repository contains a few simple data structures that are (semi) useful in various applications. This code base is
