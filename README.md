@@ -7,7 +7,14 @@ This repository contains several data structures that are (somewhat) useful when
 
 All code is currently in development and is not (particularly) meant for general use...yet
 
-Currently:
+## Installation
+
+```
+git clone https://github.com/cjneely10/PythonDataStructures.git
+pip install PythonDataStructures
+```
+
+## Currently:
 
 Mutable String
 
