@@ -28,11 +28,28 @@ class TokenParser:
         __slots__ = ["token_name", "token_type"]
 
         def __init__(self, token_name: str, token_type: type):
+            """ Create struct with given name and type for conversion
+
+            :param token_name: Name to pass to output dict
+            :param token_type: Type to which to convert value
+            """
             self.token_name: str = token_name
             self.token_type: type = token_type
 
-        def __repr__(self):
+        def __repr__(self) -> str:
+            """ For REPL debug
+
+            :return: String repr
+            """
             return f"{self.token_name} {self.token_type}"
+
+        def __eq__(self, other: "TokenParser.ParsedToken") -> bool:
+            """ Comparison operator overload
+
+            :param other: Other token to which to compare
+            :return: Boolean if internals are the same
+            """
+            return self.token_name == other.token_name and self.token_type == other.token_type
 
     __slots__ = ["tokens", "separators", "pos", "token_types"]
 
@@ -43,8 +60,6 @@ class TokenParser:
         # Store tokens and separators encountered, assumed to be in alternating orders
         self.tokens: List[TokenParser.ParsedToken] = []
         self.separators: List[str] = []
-        # Beginning position in lists is before lists start - first incrementation brings to index 0
-        self.pos = -1
         # Parse line pattern or raise error if issue
         self._parse_line_pattern(line_pattern)
 
@@ -79,10 +94,7 @@ class TokenParser:
             i += 1
 
     def parse(self, line: str) -> Dict[str, object]:
-        self.pos += 1
-        if len(self.tokens) == self.pos:
-            raise StopIteration
-        return self.tokens[self.pos]
+        pass
 
     @property
     def pattern(self) -> Tuple[List["TokenParser.ParsedToken"], List[str]]:
