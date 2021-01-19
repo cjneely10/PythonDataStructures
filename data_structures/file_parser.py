@@ -4,8 +4,7 @@ Module holds class to parse data files into packaged struct for access
 import os
 from enum import Enum
 from pathlib import Path
-from collections import namedtuple
-from typing import Iterator, Optional, List, Dict
+from typing import Iterator, Optional, List, Dict, Tuple
 
 
 class TokenParser:
@@ -22,8 +21,18 @@ class TokenParser:
         SEP = "|"
         SEP_INT = "'"
 
-    # Results tuple type to return from each successful iteration
-    ParsedToken = namedtuple("Token", ["token", "type"])
+    class ParsedToken:
+        """
+        Struct holds token name assigned to data and the data type to which to parse the value
+        """
+        __slots__ = ["token_name", "token_type"]
+
+        def __init__(self, token_name: str, token_type: type):
+            self.token_name: str = token_name
+            self.token_type: type = token_type
+
+        def __repr__(self):
+            return f"{self.token_name} {self.token_type}"
 
     __slots__ = ["tokens", "separators", "pos", "token_types"]
 
@@ -44,18 +53,44 @@ class TokenParser:
 
         :param line_pattern:
         """
-        token_as_strings = {token.value for token in TokenParser.Token}
-        tokens_dict = {token.value: token for token in TokenParser.Token}
-        pos = {"i": 0}
-        while pos["i"] < len(line_pattern):
-            if line_pattern[pos["i"]] in token_as_strings:
-                pass
+        i = 0
+        while i < len(line_pattern):
+            if line_pattern[i] == TokenParser.Token.EXP_START.value:
+                i += 1
+                name_start_pos = i
+                while i < len(line_pattern) and line_pattern[i] != TokenParser.Token.TYPE_START.value:
+                    i += 1
+                name_end_pos = i
+                i += 1
+                type_start_pos = i
+                while i < len(line_pattern) \
+                        and line_pattern[i] not in (TokenParser.Token.SEP.value, TokenParser.Token.SEP_INT.value):
+                    i += 1
+                type_end_pos = i
+                sep_val = i
+                self.tokens.append(
+                    TokenParser.ParsedToken(
+                        line_pattern[name_start_pos: name_end_pos],
+                        __builtins__[line_pattern[type_start_pos: type_end_pos]]
+                    )
+                )
+                if i < len(line_pattern):
+                    self.separators.append(line_pattern[sep_val])
+            i += 1
 
     def parse(self, line: str) -> Dict[str, object]:
         self.pos += 1
         if len(self.tokens) == self.pos:
             raise StopIteration
         return self.tokens[self.pos]
+
+    @property
+    def pattern(self) -> Tuple[List["TokenParser.ParsedToken"], List[str]]:
+        """ Get token/separator pattern generated from initial line_pattern provided
+
+        :return: List of tokens and separators
+        """
+        return self.tokens, self.separators
 
 
 class FileParser:
