@@ -2,79 +2,82 @@
 Module holds class to parse data files into packaged struct for access
 """
 import os
+from enum import Enum
 from pathlib import Path
-from enum import Enum, auto
 from collections import namedtuple
 from typing import Iterator, Optional, List
+
+
+class TokenParser:
+    """
+    Struct will parse line_pattern for tokens and maintain two stacks - one of expressions and one of separators
+    """
+
+    class Tokens(Enum):
+        """
+        Enum class holds supported token types for each line in file
+        """
+        EXP_START = "$"
+        TYPE_START = ":"
+        SEP = "|"
+        SEP_INT = "'"
+
+    # Results tuple type to return from each successful iteration
+    Token = namedtuple("Token", ["token", "type"])
+
+    __slots__ = ["tokens", "separators", "pos", "token_types"]
+
+    def __init__(self, line_pattern: str):
+        """
+        Create empty tokens/separators stacks (stacks implemented as lists)
+        """
+        # Function to parse each specified supported token
+        self.token_types = {
+            TokenParser.Tokens.EXP_START: (lambda _: _),
+            TokenParser.Tokens.TYPE_START: (lambda _: _),
+            TokenParser.Tokens.SEP: (lambda _: _),
+            TokenParser.Tokens.SEP_INT: (lambda _: _),
+        }
+        self.tokens: List[TokenParser.Token] = []
+        self.separators: List[str] = []
+        self.pos = -1
+        self._parse(line_pattern)
+
+    def _parse(self, line_pattern: str):
+        """ Per line pattern provided in FileParser.__init__, parse into tokens and separators
+
+        :param line_pattern:
+        """
+        tokens = set(self.token_types.keys())
+        for i, char in enumerate(line_pattern):
+            token_type = self.token_types.get(char)
+        self.tokens.reverse()
+        self.separators.reverse()
+
+    def __iter__(self) -> Iterator:
+        """ Parser will be iterable that returns parsed token tuples
+
+        :return: Parser as iterator
+        """
+        self.pos = -1
+        return self
+
+    def __next__(self) -> "TokenParser.Token":
+        """ Get next expected token within line
+
+        :raises: StopIteration at end of tokens list
+        :return: Token tuple consisting of token name and type
+        """
+        self.pos += 1
+        if len(self.tokens) == self.pos:
+            raise StopIteration
+        return self.tokens[self.pos]
 
 
 class FileParser:
     """
     FileParser will open a file and act as an iterator over the file's contained data
     """
-    class TokenParser:
-        """
-        Struct will parse line_pattern for tokens and maintain two stacks - one of expressions and one of separators
-        """
-        class Tokens(Enum):
-            """
-            Enum class holds supported token types for each line in file
-            """
-            EXP_START = "$"
-            TYPE_START = ":"
-            SEP = "|"
-            SEP_INT = "'"
-
-        __slots__ = ["tokens", "separators", "pos", "token_types"]
-        # Results tuple type to return from each successful iteration
-        Token = namedtuple("Token", ["token", "type"])
-
-        def __init__(self, line_pattern: str):
-            """
-            Create empty tokens/separators stacks (stacks implemented as lists)
-            """
-            # Function to parse each specified supported token
-            self.token_types = {
-                FileParser.TokenParser.Tokens.EXP_START: (lambda _: _),
-                FileParser.TokenParser.Tokens.TYPE_START: (lambda _: _),
-                FileParser.TokenParser.Tokens.SEP: (lambda _: _),
-                FileParser.TokenParser.Tokens.SEP_INT: (lambda _: _),
-            }
-            self.tokens: List[FileParser.TokenParser.Token] = []
-            self.separators: List[str] = []
-            self.pos = -1
-            self._parse(line_pattern)
-
-        def _parse(self, line_pattern: str):
-            """ Per line pattern provided in FileParser.__init__, parse into tokens and separators
-
-            :param line_pattern:
-            """
-            tokens = set(FileParser.TokenParser.token_types.keys())
-            for i, char in enumerate(line_pattern):
-                token_type = self.token_types.get(char)
-            self.tokens.reverse()
-            self.separators.reverse()
-
-        def __iter__(self) -> Iterator:
-            """ Parser will be iterable that returns parsed token tuples
-
-            :return: Parser as iterator
-            """
-            self.pos = -1
-            return self
-
-        def __next__(self) -> "FileParser.TokenParser.Token":
-            """ Get next expected token within line
-
-            :raises: StopIteration at end of tokens list
-            :return: Token tuple consisting of token name and type
-            """
-            self.pos += 1
-            if len(self.tokens) == self.pos:
-                raise StopIteration
-            return self.tokens[self.pos]
-
     class Parsed:
         """
         Struct returned as iterator is consumed, consists of packaged line data using keys
@@ -139,7 +142,7 @@ class FileParser:
             self.header = next(self.file_ptr).split(sep)
         self.comments = []
         self.raise_on_fail = raise_on_fail
-        self.parser = FileParser.TokenParser(line_pattern)
+        self.parser = TokenParser(line_pattern)
 
     def __iter__(self) -> Iterator:
         """ Create iterator over file
