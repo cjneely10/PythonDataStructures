@@ -1,0 +1,143 @@
+
+
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parallel Iteration API &#8212; PythonDataStructures 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bizstyle.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Welcome to PythonDataStructures’s documentation!" href="../index.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to PythonDataStructures’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonDataStructures 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Parallel Iteration API</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="parallel-iteration-api">
+<h1>Parallel Iteration API<a class="headerlink" href="#parallel-iteration-api" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="data_structures.parallel_iter.iter_threaded">
+<code class="sig-prename descclassname">data_structures.parallel_iter.</code><code class="sig-name descname">iter_threaded</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">threads</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">ignore_types</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Iterable<span class="p">[</span>Optional<span class="p">[</span>type<span class="p">]</span><span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Sequence</span></em><span class="sig-paren">)</span><a class="headerlink" href="#data_structures.parallel_iter.iter_threaded" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parallelize function call using provided kwargs input dict.
+All args/kwargs not provided are not adjusted.
+Each kwarg passed is expected to be a subclass of Sequence, and all kwargs are expected to have the
+same input length.</p>
+<p>Uses concurrent.futures and broadcasts calls across multiple threads</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>threads</strong> – Number of threads to launch to complete task list</p></li>
+<li><p><strong>ignore_types</strong> – Iterable of return types/Exception types to handle in parallelized call</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments to override in function</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p>AttributeError for improperly formatted input data</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Generator over results from each parallelized function call (in order)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="data_structures.parallel_iter.iter_async">
+<code class="sig-prename descclassname">data_structures.parallel_iter.</code><code class="sig-name descname">iter_async</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Sequence</span></em><span class="sig-paren">)</span><a class="headerlink" href="#data_structures.parallel_iter.iter_async" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parallelize function call using provided kwargs input dict. All non-kwargs
+are not adjusted. Expected input is dict mapping to list of inputs to try.</p>
+<p>Must decorate an async def function for valid functionality</p>
+<p>Uses asyncio and maintains call running over single thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – Keyword arguments to override in function</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p>AttributeError for improperly formatted input data</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Decorated function</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../index.html"
+                        title="previous chapter">Welcome to PythonDataStructures’s documentation!</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/parallel_iter.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to PythonDataStructures’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PythonDataStructures 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Parallel Iteration API</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Christopher Neely.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>
