@@ -11,7 +11,21 @@ All code is currently in development and is not (particularly) meant for general
 
 ```
 git clone https://github.com/cjneely10/PythonDataStructures.git
-pip install PythonDataStructures
+cd PythonDataStructures
+```
+
+Complete installation using `conda`:
+
+```
+conda env create -f environment.yml
+conda activate PythonDataStructures
+```
+
+or with `pip` (ensure Python 3.8.5):
+
+```
+pip install -r requirements.txt
+pip install .
 ```
 
 ## Currently:

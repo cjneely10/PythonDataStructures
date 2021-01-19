@@ -51,31 +51,11 @@ class TokenParser:
             if line_pattern[pos["i"]] in token_as_strings:
                 pass
 
-        # Reverse results for iteration
-        self.tokens.reverse()
-        self.separators.reverse()
-
-    def __iter__(self) -> Iterator:
-        """ Parser will be iterable that returns parsed token tuples
-
-        :return: Parser as iterator
-        """
-        self.pos = -1
-        return self
-
-    def __next__(self) -> "TokenParser.ParsedToken":
-        """ Get next expected token within line
-
-        :raises: StopIteration at end of tokens list
-        :return: Token tuple consisting of token name and type
-        """
+    def parse(self, line: str) -> Dict[str, object]:
         self.pos += 1
         if len(self.tokens) == self.pos:
             raise StopIteration
         return self.tokens[self.pos]
-
-    def parse(self, line: str) -> Dict[str, object]:
-        pass
 
 
 class FileParser:
