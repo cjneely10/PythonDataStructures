@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PythonDataStructures's documentation!
-================================================
+PythonDataStructures!
+=====================
 
 .. toctree::
    :maxdepth: 2
@@ -12,6 +12,7 @@ Welcome to PythonDataStructures's documentation!
 
    api/parallel_iter
    api/type_checking
+   api/mutable_string
 
 
 This repository contains a few simple data structures that are (semi) useful in various applications. This code base is
@@ -22,5 +23,4 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
