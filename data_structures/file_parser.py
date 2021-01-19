@@ -5,7 +5,7 @@ import os
 from enum import Enum
 from pathlib import Path
 from collections import namedtuple
-from typing import Iterator, Optional, List
+from typing import Iterator, Optional, List, Generator
 
 
 class TokenParser:
@@ -13,7 +13,7 @@ class TokenParser:
     Struct will parse line_pattern for tokens and maintain two stacks - one of expressions and one of separators
     """
 
-    class Tokens(Enum):
+    class Token(Enum):
         """
         Enum class holds supported token types for each line in file
         """
@@ -23,7 +23,7 @@ class TokenParser:
         SEP_INT = "'"
 
     # Results tuple type to return from each successful iteration
-    Token = namedtuple("Token", ["token", "type"])
+    ParsedToken = namedtuple("Token", ["token", "type"])
 
     __slots__ = ["tokens", "separators", "pos", "token_types"]
 
@@ -33,24 +33,33 @@ class TokenParser:
         """
         # Function to parse each specified supported token
         self.token_types = {
-            TokenParser.Tokens.EXP_START: (lambda _: _),
-            TokenParser.Tokens.TYPE_START: (lambda _: _),
-            TokenParser.Tokens.SEP: (lambda _: _),
-            TokenParser.Tokens.SEP_INT: (lambda _: _),
+            TokenParser.Token.EXP_START: (lambda i: _),
+            TokenParser.Token.TYPE_START: (lambda i: _),
+            TokenParser.Token.SEP: (lambda i: _),
+            TokenParser.Token.SEP_INT: (lambda i: _),
         }
-        self.tokens: List[TokenParser.Token] = []
+        self.tokens: List[TokenParser.ParsedToken] = []
         self.separators: List[str] = []
         self.pos = -1
-        self._parse(line_pattern)
+        self._parse_line_pattern(line_pattern)
 
-    def _parse(self, line_pattern: str):
+    def _parse_line_pattern(self, line_pattern: str):
         """ Per line pattern provided in FileParser.__init__, parse into tokens and separators
 
         :param line_pattern:
         """
-        tokens = set(self.token_types.keys())
-        for i, char in enumerate(line_pattern):
-            token_type = self.token_types.get(char)
+        token_as_strings = {token.value for token in TokenParser.Token}
+        tokens_dict = {token.value: token for token in TokenParser.Token}
+        start_pos = {"i": 0}
+        for char in line_pattern:
+            if char in token_as_strings:
+                token_parsing_function = self.token_types.get(TokenParser.Token(tokens_dict[char]), None)
+                if token_parsing_function is not None:
+                    token_parsing_function(start_pos)
+
+            start_pos["i"] += 1
+
+        # Reverse results for iteration
         self.tokens.reverse()
         self.separators.reverse()
 
@@ -62,7 +71,7 @@ class TokenParser:
         self.pos = -1
         return self
 
-    def __next__(self) -> "TokenParser.Token":
+    def __next__(self) -> "TokenParser.ParsedToken":
         """ Get next expected token within line
 
         :raises: StopIteration at end of tokens list
@@ -72,6 +81,9 @@ class TokenParser:
         if len(self.tokens) == self.pos:
             raise StopIteration
         return self.tokens[self.pos]
+
+    def parse(self, line: str) -> Generator:
+        pass
 
 
 class FileParser:
@@ -85,11 +97,11 @@ class FileParser:
         """
         __slots__ = ["_data"]
 
-        def __init__(self):
+        def __init__(self, data: dict):
             """
-            Create empty stored data
+            Create object using data dict, assumed at this point to be properly parsed to expected types
             """
-            self._data = {}
+            self._data = data
 
         def __getitem__(self, item: str) -> Optional[object]:
             """ Get value of item from line
@@ -156,7 +168,11 @@ class FileParser:
 
         :return: Line parsed into Parsed object
         """
-        return self.Parsed()
+        line = next(self.file_ptr)
+        if line.startswith(self.comment_char):
+            self.comments.append(line)
+        else:
+            return FileParser.Parsed({val_name: value for val_name, value in self.parser.parse()})
 
     def __enter__(self):
         """ Context manager creation for ease in use
