@@ -1,6 +1,6 @@
 name: PythonDataStructures
 dependencies:
-  - python=3.8.5
+  - python=3.8.7
   - pip
   - pip:
     - -r requirements.txt
