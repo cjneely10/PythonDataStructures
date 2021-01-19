@@ -143,18 +143,34 @@ class FileParser:
         :param raise_on_fail: If pattern fails to parse line, will throw error or continue based on value
         :raises: FileNotFoundError
         """
+        # Confirm file exists
         file = str(Path(file).resolve())
         if not os.path.exists(file):
             raise FileNotFoundError
+        # Store relevant parsing instructions
+        self.comments = []
         self.comment_char = comment
-        self.file_ptr = open(file, "r")
+        self.raise_on_fail = raise_on_fail
         self.sep_char = sep
         self.header: Optional[List[str]] = None
+        # Open file and gather any comments
+        self.file_ptr = open(file, "r")
+        line = self._get_comments()
+        # Gather header if requested
         if has_header:
-            self.header = next(self.file_ptr).split(sep)
-        self.comments = []
-        self.raise_on_fail = raise_on_fail
+            self.header = line.split(sep)
+        # Generate parser from provided line_pattern
         self.parser = TokenParser(line_pattern)
+
+    def _get_comments(self):
+        """
+        Gather all comments until no longer have lines to read, or a non-comment line is encountered
+        """
+        line = next(self.file_ptr)
+        while line and line.startswith(self.comment_char):
+            self.comments.append(line)
+            line = next(self.file_ptr)
+        return line
 
     def __iter__(self) -> Iterator:
         """ Create iterator over file
@@ -168,11 +184,8 @@ class FileParser:
 
         :return: Line parsed into Parsed object
         """
-        line = next(self.file_ptr)
-        if line.startswith(self.comment_char):
-            self.comments.append(line)
-        else:
-            return FileParser.Parsed({val_name: value for val_name, value in self.parser.parse()})
+        line = self._get_comments()
+        return FileParser.Parsed({val_name: value for val_name, value in self.parser.parse(line)})
 
     def __enter__(self):
         """ Context manager creation for ease in use
