@@ -2,6 +2,8 @@
 Module holds class to parse data files into packaged struct for access
 """
 import os
+import sys
+import inspect
 from enum import Enum
 from pathlib import Path
 from typing import Iterator, Optional, List, Dict, Tuple
@@ -60,9 +62,9 @@ class TokenParser:
             """
             return self.token_name == other.token_name and self.token_type == other.token_type
 
-    __slots__ = ["tokens", "separators", "created_ids"]
+    __slots__ = ["tokens", "separators", "created_ids", "user_data_types"]
 
-    def __init__(self, line_pattern: str, sep: str):
+    def __init__(self, line_pattern: str, sep: str, data_types=None):
         """
         Create empty tokens/separators stacks (stacks implemented as lists)
         """
@@ -71,6 +73,9 @@ class TokenParser:
         self.separators: List[str] = []
         self.created_ids = set()
         # Parse line pattern or raise error if issue
+        self.user_data_types = ({val.name: val for val in data_types if "name" in dir(val)}
+                                if data_types is not None else {})
+        self.user_data_types.update(__builtins__)
         self._parse_line_pattern(line_pattern, sep)
 
     # TODO: Handle starred and complex patterns
@@ -111,7 +116,7 @@ class TokenParser:
                     self.tokens.append(
                         TokenParser.ParsedToken(
                             line_pattern[name_start_pos: name_end_pos],
-                            __builtins__[line_pattern[type_start_pos: type_end_pos]]
+                            self.user_data_types[line_pattern[type_start_pos: type_end_pos]]
                         )
                     )
                 # Conversion type not found
