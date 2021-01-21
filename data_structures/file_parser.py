@@ -16,6 +16,11 @@ class TokenParser:
         Wrapper error class for when parsing a line pattern fails
         """
 
+    class ParseFail(IOError):
+        """
+        Wrapper error class for when parsing a line of file data fails
+        """
+
     class Token(Enum):
         """
         Enum class holds supported token types for each line in file
@@ -55,7 +60,7 @@ class TokenParser:
             """
             return self.token_name == other.token_name and self.token_type == other.token_type
 
-    __slots__ = ["tokens", "separators"]
+    __slots__ = ["tokens", "separators", "created_ids"]
 
     def __init__(self, line_pattern: str, sep: str):
         """
@@ -64,12 +69,14 @@ class TokenParser:
         # Store tokens and separators encountered, assumed to be in alternating orders
         self.tokens: List[TokenParser.ParsedToken] = []
         self.separators: List[str] = []
+        self.created_ids = set()
         # Parse line pattern or raise error if issue
         self._parse_line_pattern(line_pattern, sep)
         if not self.has_pattern():
             raise TokenParser.LinePatternFail()
 
     # TODO: Handle starred patterns
+    # TODO: Implement multiple line patterns to check
     def _parse_line_pattern(self, line_pattern: str, sep: str):
         """ Per line pattern provided in FileParser.__init__, parse into tokens and separators
 
@@ -86,6 +93,10 @@ class TokenParser:
                     i += 1
                 name_end_pos = i
                 i += 1
+                token_name = line_pattern[name_start_pos: name_end_pos]
+                if token_name in self.created_ids:
+                    raise TokenParser.LinePatternFail("Repeated id found in line_pattern")
+                self.created_ids.add(token_name)
                 # Gather type to assign
                 type_start_pos = i
                 while i < len(line_pattern) \
@@ -97,13 +108,19 @@ class TokenParser:
                 # Skip over added internal-separator character at end
                 if i < len(line_pattern) and line_pattern[i] == TokenParser.Token.SEP_INT.value:
                     i += 1
-                # Create parsed token and store in queue
-                self.tokens.append(
-                    TokenParser.ParsedToken(
-                        line_pattern[name_start_pos: name_end_pos],
-                        __builtins__[line_pattern[type_start_pos: type_end_pos]]
+                # Try create parsed token and store in queue
+                # TODO: Check loaded modules for non-builtin types for conversion
+                try:
+                    self.tokens.append(
+                        TokenParser.ParsedToken(
+                            line_pattern[name_start_pos: name_end_pos],
+                            __builtins__[line_pattern[type_start_pos: type_end_pos]]
+                        )
                     )
-                )
+                # Conversion type not found
+                except KeyError:
+                    # Failed to locate proper type
+                    raise TokenParser.LinePatternFail("Unable to parse type")
                 # Store separator character in queue
                 if i < len(line_pattern):
                     if line_pattern[sep_val] == TokenParser.Token.SEP_INT.value:
@@ -111,6 +128,8 @@ class TokenParser:
                     else:
                         self.separators.append(sep)
             i += 1
+        if not self.has_pattern():
+            raise TokenParser.LinePatternFail()
 
     def parse(self, line: str) -> Dict[str, object]:
         """ Parse line using stored data from initially provided pattern
@@ -199,6 +218,10 @@ class FileParser:
         1.0,2.0,...(a bunch of times)   ==>   $val:float|* (sep=",")
 
         The final line will generate val0-val(n-1) data accessors
+
+        Mixture:
+
+        1.0,2.0,3.0,4.0,1,2,3,4   ==>   $fval:float|#4|$ival:int|#4 (sep=",")
 
         :param file: File to parse, must exist
         :param line_pattern: Pattern to use in parsing each line.
