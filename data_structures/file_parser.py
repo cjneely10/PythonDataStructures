@@ -63,6 +63,7 @@ class TokenParser:
         # Parse line pattern or raise error if issue
         self._parse_line_pattern(line_pattern, sep)
 
+    # TODO: Handle starred patterns
     def _parse_line_pattern(self, line_pattern: str, sep: str):
         """ Per line pattern provided in FileParser.__init__, parse into tokens and separators
 
@@ -111,6 +112,7 @@ class TokenParser:
         :param line: Line of file to parse, including newline
         :return: Dictionary of parsed data using provided name and type
         """
+        line = line.rstrip("\r\n")
         i = 0
         sep_pos = 0
         tokens_pos = 0

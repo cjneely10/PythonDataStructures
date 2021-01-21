@@ -3,7 +3,7 @@ from data_structures.file_parser import TokenParser
 
 
 class TestTokenParser(TestCase):
-    def test_parse_line_pattern(self):
+    def test_parse_proper_line_pattern(self):
         parser = TokenParser("$val:float|$val2:int|$val3:str", "\t")
 
         self.assertEqual(
@@ -18,7 +18,22 @@ class TestTokenParser(TestCase):
             parser.pattern
         )
 
-    def test_parse_line_to_pattern(self):
+    def test_parse_improper_line_pattern_missing_sep(self):
+        self.fail()
+
+    def test_parse_improper_line_pattern_missing_exp_start(self):
+        self.fail()
+
+    def test_parse_improper_line_pattern_missing_type_start(self):
+        self.fail()
+
+    def test_parse_improper_line_pattern_invalid_type_signatures(self):
+        self.fail()
+
+    def test_parse_improper_line_pattern_repeated_exp_names(self):
+        self.fail()
+
+    def test_parse_proper_line(self):
         parser = TokenParser("$val:float|$val2:int|$val3:str", "\t")
 
         self.assertEqual(
@@ -26,7 +41,24 @@ class TestTokenParser(TestCase):
             parser.parse("1.0\t2\t3")
         )
 
-    def test_parse_line_with_internal_sep(self):
+    # # All improper line tests assume a correctly-parsed line_pattern
+
+    def test_parse_improper_line_type_mismatch(self):
+        self.fail()
+
+    def test_parse_improper_line_length(self):
+        self.fail()
+
+    def test_parse_improper_line_wrong_sep(self):
+        self.fail()
+
+    def test_parse_improper_line_missing_sep_int(self):
+        self.fail()
+
+    def test_parse_improper_line_wrong_sep_int(self):
+        self.fail()
+
+    def test_parse_proper_line_with_internal_sep(self):
         parser = TokenParser("$val:str'-$value:float|$val2:str'-$value2:float", "\t")
 
         self.assertEqual(
