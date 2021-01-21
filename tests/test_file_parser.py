@@ -18,11 +18,21 @@ class TestTokenParser(TestCase):
             parser.pattern
         )
 
-    def test_parse_improper_line_pattern_missing_sep(self):
-        self.fail()
+    def test_parse_line_pattern_missing_sep_end(self):
+        parser = TokenParser("$val:float", "\t")
+
+        self.assertEqual(
+            (
+                [TokenParser.ParsedToken("val", float)],
+                []
+            ),
+            parser.pattern
+        )
 
     def test_parse_improper_line_pattern_missing_exp_start(self):
-        self.fail()
+
+        with self.assertRaises(TokenParser.ParserFail):
+            TokenParser("val:float", "\t")
 
     def test_parse_improper_line_pattern_missing_type_start(self):
         self.fail()
