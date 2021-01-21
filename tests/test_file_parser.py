@@ -35,8 +35,6 @@ class TestTokenParser(TestCase):
 
     def test_parse_proper_user_type(self):
         class Str:
-            name = "Str"
-
             def __init__(self, value):
                 self.value = value
 
@@ -48,14 +46,6 @@ class TestTokenParser(TestCase):
             ),
             parser.pattern
         )
-
-    def test_parse_proper_improper_user_type(self):
-        class Str:
-            def __init__(self, value):
-                self.value = value
-
-        with self.assertRaises(TokenParser.ParsePatternFail):
-            TokenParser("$val:Str", "\t", [Str])
 
     def test_parse_improper_pattern_missing_exp_start(self):
         with self.assertRaises(TokenParser.ParsePatternFail):

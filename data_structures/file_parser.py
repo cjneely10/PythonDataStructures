@@ -72,10 +72,11 @@ class TokenParser:
         self.tokens: List[TokenParser.ParsedToken] = []
         self.separators: List[str] = []
         self.created_ids = set()
-        # Parse line pattern or raise error if issue
-        self.user_data_types = ({val.name: val for val in data_types if "name" in dir(val)}
-                                if data_types is not None else {})
+        # Build dict of searchable user types passed in at API level
+        self.user_data_types = ({val.__name__: val for val in data_types} if data_types is not None else {})
+        # Include all builtin types
         self.user_data_types.update(__builtins__)
+        # Parse line pattern or raise error if issue
         self._parse_line_pattern(line_pattern, sep)
 
     # TODO: Handle starred and complex patterns
