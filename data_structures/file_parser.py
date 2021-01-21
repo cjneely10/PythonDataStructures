@@ -11,12 +11,12 @@ class TokenParser:
     """
     Struct will parse line_pattern for tokens and maintain two stacks - one of expressions and one of separators
     """
-    class LinePatternFail(IOError):
+    class ParsePatternFail(IOError):
         """
         Wrapper error class for when parsing a line pattern fails
         """
 
-    class ParseFail(IOError):
+    class ParseLineFail(IOError):
         """
         Wrapper error class for when parsing a line of file data fails
         """
@@ -72,10 +72,8 @@ class TokenParser:
         self.created_ids = set()
         # Parse line pattern or raise error if issue
         self._parse_line_pattern(line_pattern, sep)
-        if not self.has_pattern():
-            raise TokenParser.LinePatternFail()
 
-    # TODO: Handle starred patterns
+    # TODO: Handle starred and complex patterns
     # TODO: Implement multiple line patterns to check
     def _parse_line_pattern(self, line_pattern: str, sep: str):
         """ Per line pattern provided in FileParser.__init__, parse into tokens and separators
@@ -95,7 +93,7 @@ class TokenParser:
                 i += 1
                 token_name = line_pattern[name_start_pos: name_end_pos]
                 if token_name in self.created_ids:
-                    raise TokenParser.LinePatternFail("Repeated id found in line_pattern")
+                    raise TokenParser.ParsePatternFail("Repeated id found in line_pattern")
                 self.created_ids.add(token_name)
                 # Gather type to assign
                 type_start_pos = i
@@ -118,9 +116,9 @@ class TokenParser:
                         )
                     )
                 # Conversion type not found
-                except KeyError:
+                except KeyError as err:
                     # Failed to locate proper type
-                    raise TokenParser.LinePatternFail("Unable to parse type")
+                    raise TokenParser.ParsePatternFail("Unable to parse type") from err
                 # Store separator character in queue
                 if i < len(line_pattern):
                     if line_pattern[sep_val] == TokenParser.Token.SEP_INT.value:
@@ -129,7 +127,7 @@ class TokenParser:
                         self.separators.append(sep)
             i += 1
         if not self.has_pattern():
-            raise TokenParser.LinePatternFail()
+            raise TokenParser.ParsePatternFail()
 
     def parse(self, line: str) -> Dict[str, object]:
         """ Parse line using stored data from initially provided pattern

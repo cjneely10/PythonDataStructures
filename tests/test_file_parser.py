@@ -20,6 +20,9 @@ class TestTokenParser(TestCase):
     def test_parse_proper_pattern_starred(self):
         self.fail()
 
+    def test_parse_proper_pattern_complex(self):
+        self.fail()
+
     def test_parse_proper_pattern_missing_sep_end(self):
         parser = TokenParser("$val:float", "\t")
         self.assertEqual(
@@ -30,23 +33,26 @@ class TestTokenParser(TestCase):
             parser.pattern
         )
 
+    def test_parse_proper_user_type(self):
+        self.fail()
+
     def test_parse_improper_pattern_missing_exp_start(self):
-        with self.assertRaises(TokenParser.LinePatternFail):
+        with self.assertRaises(TokenParser.ParsePatternFail):
             TokenParser("val:float", "\t")
 
     def test_parse_improper_pattern_missing_type_start(self):
-        with self.assertRaises(TokenParser.LinePatternFail):
+        with self.assertRaises(TokenParser.ParsePatternFail):
             TokenParser("$valfloat", "\t")
 
     def test_parse_improper_pattern_invalid_type_signatures(self):
-        with self.assertRaises(TokenParser.LinePatternFail):
+        with self.assertRaises(TokenParser.ParsePatternFail):
             TokenParser("$val:vroom", "\t")
 
     def test_parse_improper_pattern_invalid_sep_int(self):
         self.fail()
 
     def test_parse_improper_pattern_repeated_exp_names(self):
-        with self.assertRaises(TokenParser.LinePatternFail):
+        with self.assertRaises(TokenParser.ParsePatternFail):
             TokenParser("$val:int|$val:float", "\t")
 
     def test_parse_proper_line(self):
