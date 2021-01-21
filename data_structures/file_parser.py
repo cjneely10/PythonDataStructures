@@ -11,8 +11,10 @@ class TokenParser:
     """
     Struct will parse line_pattern for tokens and maintain two stacks - one of expressions and one of separators
     """
-    class ParserFail(Exception):
-        pass
+    class LinePatternFail(IOError):
+        """
+        Wrapper error class for when parsing a line pattern fails
+        """
 
     class Token(Enum):
         """
@@ -65,7 +67,7 @@ class TokenParser:
         # Parse line pattern or raise error if issue
         self._parse_line_pattern(line_pattern, sep)
         if not self.has_pattern():
-            raise TokenParser.ParserFail()
+            raise TokenParser.LinePatternFail()
 
     # TODO: Handle starred patterns
     def _parse_line_pattern(self, line_pattern: str, sep: str):
@@ -146,7 +148,7 @@ class TokenParser:
 
         :return: Boolean for if pattern loaded successfully
         """
-        return len(self.tokens) > 0 and len(self.separators) > 0
+        return len(self.tokens) > 0
 
 
 class FileParser:
