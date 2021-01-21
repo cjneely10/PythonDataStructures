@@ -51,7 +51,7 @@ class TokenParser:
             """
             return self.token_name == other.token_name and self.token_type == other.token_type
 
-    __slots__ = ["tokens", "separators", "pos", "token_types"]
+    __slots__ = ["tokens", "separators"]
 
     def __init__(self, line_pattern: str, sep: str):
         """
@@ -89,8 +89,7 @@ class TokenParser:
                 sep_val = i
                 # Skip over added internal-separator character at end
                 if i < len(line_pattern) and line_pattern[i] == TokenParser.Token.SEP_INT.value:
-                    sep_val = i + 1
-                    i += 2
+                    i += 1
                 # Create parsed token and store in queue
                 self.tokens.append(
                     TokenParser.ParsedToken(
@@ -101,7 +100,7 @@ class TokenParser:
                 # Store separator character in queue
                 if i < len(line_pattern):
                     if line_pattern[sep_val] == TokenParser.Token.SEP_INT.value:
-                        self.separators.append("'")
+                        self.separators.append(line_pattern[sep_val + 1])
                     else:
                         self.separators.append(sep)
             i += 1
