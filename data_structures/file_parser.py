@@ -107,7 +107,6 @@ class TokenParser:
                 if i < len(line_pattern) and line_pattern[i] == TokenParser.Token.SEP_INT.value:
                     i += 1
                 # Try create parsed token and store in queue
-                # TODO: Check loaded modules for non-builtin types for conversion
                 try:
                     self.tokens.append(
                         TokenParser.ParsedToken(
