@@ -150,12 +150,24 @@ class TokenParser:
             while i < len(line) and line[i] != self.separators[sep_pos]:
                 i += 1
             if i < len(line):
-                out[self.tokens[tokens_pos].token_name] = self.tokens[tokens_pos].token_type(line[start_pos: i])
+                self._try_parse(out, tokens_pos, line[start_pos: i])
                 tokens_pos += 1
             sep_pos += 1
             i += 1
-        out[self.tokens[tokens_pos].token_name] = self.tokens[tokens_pos].token_type(line[i:])
+        self._try_parse(out, tokens_pos, line[i:])
         return out
+
+    def _try_parse(self, out: dict, tokens_pos: int, line: str):
+        """ Attempt to convert line in file to type in collected pattern
+
+        :param out: Output data dict being built
+        :param tokens_pos: Position of token for parsing
+        :param line: Generated line substring to convert
+        """
+        try:
+            out[self.tokens[tokens_pos].token_name] = self.tokens[tokens_pos].token_type(line)
+        except ValueError as err:
+            raise TokenParser.ParseLineFail("Improper data type found: " + line) from err
 
     @property
     def pattern(self) -> Tuple[List["TokenParser.ParsedToken"], List[str]]:
@@ -290,3 +302,7 @@ class FileParser:
         Close context manager and stored file
         """
         self.file_ptr.close()
+
+    # TODO: Implement collect method to gather all results into dict of lists
+    def collect(self):
+        pass

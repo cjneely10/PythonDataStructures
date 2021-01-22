@@ -60,7 +60,8 @@ class TestTokenParser(TestCase):
             TokenParser("$val:vroom", "\t")
 
     def test_parse_improper_pattern_invalid_sep_int(self):
-        self.fail()
+        with self.assertRaises(TokenParser.ParsePatternFail):
+            TokenParser("$val:int`_|$val2:int", "\t")
 
     def test_parse_improper_pattern_repeated_exp_names(self):
         with self.assertRaises(TokenParser.ParsePatternFail):
@@ -82,17 +83,33 @@ class TestTokenParser(TestCase):
             parser.parse("sep-1.0\tsep-2.0")
         )
 
-    def test_parse_improper_line_type_mismatch(self):
+    def test_parse_proper_line_starred(self):
         self.fail()
+
+    def test_parse_proper_line_complex(self):
+        self.fail()
+
+    def test_parse_improper_line_type_mismatch(self):
+        parser = TokenParser("$val:float|$val2:int|$val3:str", "\t")
+        with self.assertRaises(TokenParser.ParseLineFail):
+            parser.parse("1.0\t1.0\t1.0")
 
     def test_parse_improper_line_length(self):
-        self.fail()
+        parser = TokenParser("$val:float|$val2:int", "\t")
+        with self.assertRaises(TokenParser.ParseLineFail):
+            parser.parse("1.0\t1.0\t1.0")
 
     def test_parse_improper_line_wrong_sep(self):
-        self.fail()
+        parser = TokenParser("$val:float|$val2:int", "\t")
+        with self.assertRaises(TokenParser.ParseLineFail):
+            parser.parse("1.0,1.0,1.0")
 
     def test_parse_improper_line_missing_sep_int(self):
-        self.fail()
+        parser = TokenParser("$val:str'-$value:float|$val2:str'-$value2:float", "\t")
+        with self.assertRaises(TokenParser.ParseLineFail):
+            parser.parse("sep1.0\tsep-2.0")
 
     def test_parse_improper_line_wrong_sep_int(self):
-        self.fail()
+        parser = TokenParser("$val:str'-$value:float|$val2:str'-$value2:float", "\t")
+        with self.assertRaises(TokenParser.ParseLineFail):
+            parser.parse("sep_1.0\tsep-2.0")
