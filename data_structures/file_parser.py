@@ -1,6 +1,7 @@
 """
 Module holds class to parse data files into packaged struct for access
 """
+# pylint: disable=too-many-instance-attributes
 import os
 from collections import defaultdict
 from enum import Enum
@@ -55,6 +56,12 @@ class TokenParser:
             :return: Boolean if internals are the same
             """
             return self.token_name == other.token_name and self.token_type == other.token_type
+
+        def __ne__(self, other):
+            """
+            Wrapper for not __eq__
+            """
+            return not self.__eq__(other)
 
     __slots__ = ["tokens", "separators", "created_ids", "user_data_types"]
 
@@ -279,11 +286,10 @@ class FileParser:
         self._header: Optional[List[str]] = None
         # Open file and gather any comments
         self._file = file
-        self._file_ptr = None
         # Gather header if requested
         if has_header:
-            self._file_ptr = open(file, "r")
-            self._header = next(self._file_ptr).rstrip("\r\n").split(sep)
+            self._file = open(file, "r")
+            self._header = next(self._file).rstrip("\r\n").split(sep)
         # Generate parser from provided line_pattern
         self._parser = TokenParser(line_pattern, sep)
         self._size = 0
@@ -292,12 +298,12 @@ class FileParser:
         """
         Gather all comments until no longer have lines to read, or a non-comment line is encountered
         """
-        if self._file_ptr is None:
-            self._file_ptr = open(self._file, "r")
-        line = next(self._file_ptr).rstrip("\r\n")
+        if isinstance(self._file, str):
+            self._file = open(self._file, "r")
+        line = next(self._file).rstrip("\r\n")
         while line and (self._comment_char is not None and line.startswith(self._comment_char)):
             self._comments.append(line)
-            line = next(self._file_ptr).rstrip("\r\n")
+            line = next(self._file).rstrip("\r\n")
         return line
 
     def __iter__(self) -> Iterator:
