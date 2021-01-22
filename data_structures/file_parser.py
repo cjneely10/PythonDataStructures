@@ -220,8 +220,8 @@ class FileParser:
             """
             return self._data
 
-    def __init__(self, file: str, line_pattern: str, has_header: bool, sep="\t", comment: Optional[str] = "#",
-                 raise_on_fail: bool = True):
+    def __init__(self, file: str, line_pattern: str, has_header: bool = False, sep: str = "\t",
+                 comment: Optional[str] = "#", raise_on_fail: bool = True):
         """ Create FileParser with specified file. Use the provided line_pattern to parse each line into proper types
 
         Examples:
@@ -253,28 +253,31 @@ class FileParser:
         if not os.path.exists(file):
             raise FileNotFoundError
         # Store relevant parsing instructions
-        self.comments = []
-        self.comment_char = comment
-        self.raise_on_fail = raise_on_fail
-        self.sep_char = sep
-        self.header: Optional[List[str]] = None
+        self._comments = []
+        self._comment_char = comment
+        self._raise_on_fail = raise_on_fail
+        self._sep_char = sep
+        self._header: Optional[List[str]] = None
         # Open file and gather any comments
-        self.file_ptr = open(file, "r")
-        line = self._get_comments()
+        self._file = file
+        self._file_ptr = None
         # Gather header if requested
         if has_header:
-            self.header = line.split(sep)
+            self._file_ptr = open(file, "r")
+            self._header = next(self._file_ptr).rstrip("\r\n").split(sep)
         # Generate parser from provided line_pattern
-        self.parser = TokenParser(line_pattern, sep)
+        self._parser = TokenParser(line_pattern, sep)
 
     def _get_comments(self):
         """
         Gather all comments until no longer have lines to read, or a non-comment line is encountered
         """
-        line = next(self.file_ptr)
-        while line and line.startswith(self.comment_char):
-            self.comments.append(line)
-            line = next(self.file_ptr)
+        if self._file_ptr is None:
+            self._file_ptr = open(self._file, "r")
+        line = next(self._file_ptr).rstrip("\r\n")
+        while line and (self._comment_char is not None and line.startswith(self._comment_char)):
+            self._comments.append(line)
+            line = next(self._file_ptr).rstrip("\r\n")
         return line
 
     def __iter__(self) -> Iterator:
@@ -290,21 +293,20 @@ class FileParser:
         :return: Line parsed into Parsed object
         """
         line = self._get_comments()
-        return FileParser.Parsed(self.parser.parse(line))
-
-    def __enter__(self):
-        """ Context manager creation for ease in use
-
-        :return: Iterator over self
-        """
-        return self.__iter__()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        Close context manager and stored file
-        """
-        self.file_ptr.close()
+        return FileParser.Parsed(self._parser.parse(line))
 
     # TODO: Implement collect method to gather all results into dict of lists
     def collect(self):
         pass
+
+    @property
+    def comments(self) -> List[str]:
+        """ Get list of all comment lines found
+
+        :return:
+        """
+        return self._comments
+
+    @property
+    def header(self) -> List[str]:
+        return self._header

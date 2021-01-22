@@ -1,5 +1,6 @@
+import tempfile
 from unittest import TestCase
-from data_structures.file_parser import TokenParser
+from data_structures.file_parser import TokenParser, FileParser
 
 
 class TestTokenParser(TestCase):
@@ -113,3 +114,25 @@ class TestTokenParser(TestCase):
         parser = TokenParser("$val:str'-$value:float|$val2:str'-$value2:float", "\t")
         with self.assertRaises(TokenParser.ParseLineFail):
             parser.parse("sep_1.0\tsep-2.0")
+
+    def test_read_file_simple(self):
+        with tempfile.NamedTemporaryFile("w") as file:
+            file.write("1,2,3,4,5\n6,7,8,9,10")
+            file.flush()
+
+            reader = FileParser(file.name, "$a:int|$b:int|$c:int|$d:int|$e:int", False, ",")
+            for data in reader:
+                print(data["a"])
+        self.fail()
+
+    def test_read_file_with_header(self):
+        with tempfile.NamedTemporaryFile("w") as file:
+            file.write("one,two,three,four,five\n1,2,3,4,5\n# comments line\n6,7,8,9,10")
+            file.flush()
+
+            reader = FileParser(file.name, "$a:int|$b:int|$c:int|$d:int|$e:int", True, ",")
+            for data in reader:
+                print(data["a"])
+            print("Header", reader.header)
+            print("Comments", reader.comments)
+        self.fail()
