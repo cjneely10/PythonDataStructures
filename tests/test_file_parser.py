@@ -123,6 +123,7 @@ class TestTokenParser(TestCase):
             reader = FileParser(file.name, "$a:int|$b:int|$c:int|$d:int|$e:int", False, ",")
             self.assertEqual(1, next(reader)["a"])
             self.assertEqual(6, next(reader)["a"])
+            file.close()
 
     def test_read_file_with_header(self):
         with tempfile.NamedTemporaryFile("w") as file:
@@ -132,13 +133,16 @@ class TestTokenParser(TestCase):
             reader = FileParser(file.name, "$a:int|$b:int|$c:int|$d:int|$e:int", True, ",")
             self.assertEqual(1, next(reader)["a"])
             self.assertEqual(6, next(reader)["a"])
+            file.close()
 
     def test_collect(self):
-        results = None
         with tempfile.NamedTemporaryFile("w") as file:
             file.write("one,two,three,four,five\n1,2,3,4,5\n# comments line\n6,7,8,9,10")
             file.flush()
 
             reader = FileParser(file.name, "$a:int|$b:int|$c:int|$d:int|$e:int", True, ",")
-            results = reader.collect()
-        print(results)
+            self.assertEqual(
+                {"a": [1, 6], "b": [2, 7], "c": [3, 8], "d": [4, 9], "e": [5, 10],},
+                reader.collect()
+            )
+            file.close()
