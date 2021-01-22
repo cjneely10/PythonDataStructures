@@ -2,9 +2,10 @@
 Module holds class to parse data files into packaged struct for access
 """
 import os
+from collections import defaultdict
 from enum import Enum
 from pathlib import Path
-from typing import Iterator, Optional, List, Dict, Tuple
+from typing import Iterator, Optional, List, Dict, Tuple, KeysView, ItemsView, ValuesView
 
 
 class TokenParser:
@@ -220,6 +221,24 @@ class FileParser:
             """
             return self._data
 
+        def keys(self) -> KeysView:
+            """
+            Wrapper .keys()
+            """
+            return self._data.keys()
+
+        def values(self) -> ValuesView:
+            """
+            Wrapper .values()
+            """
+            return self._data.values()
+
+        def items(self) -> ItemsView:
+            """
+            Wrapper .items()
+            """
+            return self._data.items()
+
     def __init__(self, file: str, line_pattern: str, has_header: bool = False, sep: str = "\t",
                  comment: Optional[str] = "#", raise_on_fail: bool = True):
         """ Create FileParser with specified file. Use the provided line_pattern to parse each line into proper types
@@ -267,6 +286,7 @@ class FileParser:
             self._header = next(self._file_ptr).rstrip("\r\n").split(sep)
         # Generate parser from provided line_pattern
         self._parser = TokenParser(line_pattern, sep)
+        self._size = 0
 
     def _get_comments(self):
         """
@@ -293,20 +313,39 @@ class FileParser:
         :return: Line parsed into Parsed object
         """
         line = self._get_comments()
+        self._size += 1
         return FileParser.Parsed(self._parser.parse(line))
 
-    # TODO: Implement collect method to gather all results into dict of lists
-    def collect(self):
-        pass
+    def collect(self) -> Dict[str, list]:
+        """ Read through entire file and gather contents into dictionary
+
+        :return: Collected data from input file
+        """
+        out = defaultdict(list)
+        for data in self:
+            for key, value in data.items():
+                out[key].append(value)
+        return dict(out)
 
     @property
     def comments(self) -> List[str]:
         """ Get list of all comment lines found
 
-        :return:
+        :return: List of all comment lines found
         """
         return self._comments
 
     @property
     def header(self) -> List[str]:
+        """ Get header values split by initial separator
+
+        :return: List of header values
+        """
         return self._header
+
+    def __len__(self) -> int:
+        """ Get number of data lines encountered by parser
+
+        :return: Number of data lines in original file
+        """
+        return self._size

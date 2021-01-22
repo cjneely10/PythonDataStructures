@@ -121,9 +121,8 @@ class TestTokenParser(TestCase):
             file.flush()
 
             reader = FileParser(file.name, "$a:int|$b:int|$c:int|$d:int|$e:int", False, ",")
-            for data in reader:
-                print(data["a"])
-        self.fail()
+            self.assertEqual(1, next(reader)["a"])
+            self.assertEqual(6, next(reader)["a"])
 
     def test_read_file_with_header(self):
         with tempfile.NamedTemporaryFile("w") as file:
@@ -131,8 +130,15 @@ class TestTokenParser(TestCase):
             file.flush()
 
             reader = FileParser(file.name, "$a:int|$b:int|$c:int|$d:int|$e:int", True, ",")
-            for data in reader:
-                print(data["a"])
-            print("Header", reader.header)
-            print("Comments", reader.comments)
-        self.fail()
+            self.assertEqual(1, next(reader)["a"])
+            self.assertEqual(6, next(reader)["a"])
+
+    def test_collect(self):
+        results = None
+        with tempfile.NamedTemporaryFile("w") as file:
+            file.write("one,two,three,four,five\n1,2,3,4,5\n# comments line\n6,7,8,9,10")
+            file.flush()
+
+            reader = FileParser(file.name, "$a:int|$b:int|$c:int|$d:int|$e:int", True, ",")
+            results = reader.collect()
+        print(results)
