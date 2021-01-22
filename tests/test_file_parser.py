@@ -142,7 +142,7 @@ class TestTokenParser(TestCase):
 
             reader = FileParser(file.name, "$a:int|$b:int|$c:int|$d:int|$e:int", True, ",")
             self.assertEqual(
-                {"a": [1, 6], "b": [2, 7], "c": [3, 8], "d": [4, 9], "e": [5, 10],},
+                {"a": [1, 6], "b": [2, 7], "c": [3, 8], "d": [4, 9], "e": [5, 10]},
                 reader.collect()
             )
             file.close()

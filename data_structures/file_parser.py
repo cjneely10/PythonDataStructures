@@ -1,9 +1,9 @@
 """
 Module holds class to parse data files into packaged struct for access
 """
-# pylint: disable=too-many-instance-attributes
 import os
 from collections import defaultdict
+from collections.abc import Mapping
 from enum import Enum
 from pathlib import Path
 from typing import Iterator, Optional, List, Dict, Tuple, KeysView, ItemsView, ValuesView
@@ -199,7 +199,7 @@ class FileParser:
     """
     FileParser will open a file and act as an iterator over the file's contained data
     """
-    class Parsed:
+    class Parsed(Mapping):
         """
         Struct returned as iterator is consumed, consists of packaged line data using keys
         referenced in initial FileParser construction
@@ -211,6 +211,20 @@ class FileParser:
             Create object using data dict, assumed at this point to be properly parsed to expected types
             """
             self._data = data
+
+        def __iter__(self) -> Iterator:
+            """ Create iterator over data
+
+            :return: Internal data dict returned as iterator
+            """
+            return iter(self._data)
+
+        def __len__(self) -> int:
+            """ Length of parsed line data dict
+
+            :return: Length of parsed line data
+            """
+            return len(self._data)
 
         def __getitem__(self, item: str) -> Optional[object]:
             """ Get value of item from line
@@ -247,7 +261,7 @@ class FileParser:
             return self._data.items()
 
     def __init__(self, file: str, line_pattern: str, has_header: bool = False, sep: str = "\t",
-                 comment: Optional[str] = "#", raise_on_fail: bool = True):
+                 comment: Optional[str] = "#"):
         """ Create FileParser with specified file. Use the provided line_pattern to parse each line into proper types
 
         Examples:
@@ -271,7 +285,6 @@ class FileParser:
         :param has_header: Store header if found
         :param sep: Separator used across file (if a header line is present, must also be in header)
         :param comment: Character beginning line that signifies it as a comment
-        :param raise_on_fail: If pattern fails to parse line, will throw error or continue based on value
         :raises: FileNotFoundError
         """
         # Confirm file exists
@@ -281,7 +294,6 @@ class FileParser:
         # Store relevant parsing instructions
         self._comments = []
         self._comment_char = comment
-        self._raise_on_fail = raise_on_fail
         self._sep_char = sep
         self._header: Optional[List[str]] = None
         # Open file and gather any comments
