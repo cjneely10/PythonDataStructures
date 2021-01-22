@@ -2,8 +2,6 @@
 Module holds class to parse data files into packaged struct for access
 """
 import os
-import sys
-import inspect
 from enum import Enum
 from pathlib import Path
 from typing import Iterator, Optional, List, Dict, Tuple
@@ -31,6 +29,8 @@ class TokenParser:
         TYPE_START = ":"
         SEP = "|"
         SEP_INT = "'"
+        STARRED = "*"
+        COMPLEX = "#"
 
     class ParsedToken:
         """
@@ -46,13 +46,6 @@ class TokenParser:
             """
             self.token_name: str = token_name
             self.token_type: type = token_type
-
-        def __repr__(self) -> str:
-            """ For REPL debug
-
-            :return: String repr
-            """
-            return f"{self.token_name} {self.token_type}"
 
         def __eq__(self, other: "TokenParser.ParsedToken") -> bool:
             """ Comparison operator overload
@@ -88,51 +81,60 @@ class TokenParser:
         """
         i = 0
         while i < len(line_pattern):
-            # Line pattern $expr:value|
-            if line_pattern[i] == TokenParser.Token.EXP_START.value:
-                # Gather name to assign to data
-                i += 1
-                name_start_pos = i
-                while i < len(line_pattern) and line_pattern[i] != TokenParser.Token.TYPE_START.value:
-                    i += 1
-                name_end_pos = i
-                i += 1
-                token_name = line_pattern[name_start_pos: name_end_pos]
-                if token_name in self.created_ids:
-                    raise TokenParser.ParsePatternFail("Repeated id found in line_pattern")
-                self.created_ids.add(token_name)
-                # Gather type to assign
-                type_start_pos = i
-                while i < len(line_pattern) \
-                        and line_pattern[i] not in (TokenParser.Token.SEP.value, TokenParser.Token.SEP_INT.value):
-                    i += 1
-                type_end_pos = i
-                # Store position of separator character
-                sep_val = i
-                # Skip over added internal-separator character at end
-                if i < len(line_pattern) and line_pattern[i] == TokenParser.Token.SEP_INT.value:
-                    i += 1
-                # Try create parsed token and store in queue
-                try:
-                    self.tokens.append(
-                        TokenParser.ParsedToken(
-                            line_pattern[name_start_pos: name_end_pos],
-                            self.user_data_types[line_pattern[type_start_pos: type_end_pos]]
-                        )
-                    )
-                # Conversion type not found
-                except KeyError as err:
-                    # Failed to locate proper type
-                    raise TokenParser.ParsePatternFail("Unable to parse type") from err
-                # Store separator character in queue
-                if i < len(line_pattern):
-                    if line_pattern[sep_val] == TokenParser.Token.SEP_INT.value:
-                        self.separators.append(line_pattern[sep_val + 1])
-                    else:
-                        self.separators.append(sep)
+            self._parse_standard_token(line_pattern, i, sep)
             i += 1
         if not self.has_pattern():
             raise TokenParser.ParsePatternFail()
+
+    def _parse_standard_token(self, line_pattern: str, i: int, sep: str):
+        """ Parse line pattern $expr:value|
+
+        :param line_pattern: Line pattern being parsed
+        :param i: Position within line pattern
+        :param sep: Global line separator
+        """
+        if line_pattern[i] == TokenParser.Token.EXP_START.value:
+            # Move over EXP_START token
+            i += 1
+            # Gather name to assign to data
+            name_start_pos = i
+            while i < len(line_pattern) and line_pattern[i] != TokenParser.Token.TYPE_START.value:
+                i += 1
+            name_end_pos = i
+            i += 1
+            token_name = line_pattern[name_start_pos: name_end_pos]
+            if token_name in self.created_ids:
+                raise TokenParser.ParsePatternFail("Repeated id found in line_pattern")
+            self.created_ids.add(token_name)
+            # Gather type to assign
+            type_start_pos = i
+            while i < len(line_pattern) \
+                    and line_pattern[i] not in (TokenParser.Token.SEP.value, TokenParser.Token.SEP_INT.value):
+                i += 1
+            type_end_pos = i
+            # Store position of separator character
+            sep_val = i
+            # Skip over added internal-separator character at end
+            if i < len(line_pattern) and line_pattern[i] == TokenParser.Token.SEP_INT.value:
+                i += 1
+            # Try create parsed token and store in queue
+            try:
+                self.tokens.append(
+                    TokenParser.ParsedToken(
+                        line_pattern[name_start_pos: name_end_pos],
+                        self.user_data_types[line_pattern[type_start_pos: type_end_pos]]
+                    )
+                )
+            # Conversion type not found
+            except KeyError as err:
+                # Failed to locate proper type
+                raise TokenParser.ParsePatternFail("Unable to parse type") from err
+            # Store separator character in queue
+            if i < len(line_pattern):
+                if line_pattern[sep_val] == TokenParser.Token.SEP_INT.value:
+                    self.separators.append(line_pattern[sep_val + 1])
+                else:
+                    self.separators.append(sep)
 
     def parse(self, line: str) -> Dict[str, object]:
         """ Parse line using stored data from initially provided pattern
