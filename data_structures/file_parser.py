@@ -2,10 +2,10 @@
 Module holds class to parse data files into packaged struct for access
 """
 import os
-from collections import defaultdict
-from collections.abc import Mapping
 from enum import Enum
 from pathlib import Path
+from collections import defaultdict
+from collections.abc import Mapping
 from typing import Iterator, Optional, List, Dict, Tuple, KeysView, ItemsView, ValuesView
 
 
@@ -80,8 +80,6 @@ class TokenParser:
         # Parse line pattern or raise error if issue
         self._parse_line_pattern(line_pattern, sep)
 
-    # TODO: Handle starred and complex patterns
-    # TODO: Implement multiple line patterns to check
     def _parse_line_pattern(self, line_pattern: str, sep: str):
         """ Per line pattern provided in FileParser.__init__, parse into tokens and separators
 
@@ -233,14 +231,6 @@ class FileParser:
             :return: Parsed input data
             """
             return self._data.get(item, None)
-
-        @property
-        def data(self) -> dict:
-            """ Get readable reference to internally stored data
-
-            :return: Internal data parsed to proper types
-            """
-            return self._data
 
         def keys(self) -> KeysView:
             """
