@@ -70,7 +70,7 @@ class Pyrallel(cli.Application):
                 .replace("{threads}", str(self.threads_per_worker)).split()
             return local[program_string[0]][program_string[1:]]()
 
-        for val in map_program(""):
+        for val in map_program():
             print(val)
 
 
