@@ -5,7 +5,6 @@ Module runs local command across list of identified files
 Uses defined parsing function that is passed as lambda from command line
 """
 from plumbum import cli, local
-from plumbum.machines.local import LocalCommand
 from data_structures.parallel_iter import iter_threaded
 
 
@@ -20,22 +19,34 @@ class Pyrallel(cli.Application):
 
     @cli.switch(["-w", "--workers"], int, help="Number of workers, default 1")
     def get_workers(self, workers):
+        """
+        Set number of workers over which to distribute
+        """
         if workers < 1:
             raise TypeError("Workers must be positive")
         self.workers = workers
 
     @cli.switch(["-t", "--threads-per-worker"], int, help="Number of threads to allow each worker to use")
     def get_threads(self, threads):
+        """
+        Set number of threads allowed for each worker
+        """
         if threads < 1:
             raise TypeError("Threads must be positive")
         self.threads_per_worker = threads
 
     @cli.switch(["-p", "--program-string"], str, help="Quoted program string to be evaluated as f string")
     def get_program(self, program):
+        """
+        Set program string to modify
+        """
         self.program_string = program
 
     @staticmethod
     def gather_files() -> list:
+        """
+        Gather input files from command line as input from user - meant to be used with cli iterator
+        """
         data_files = []
         try:
             file = input()
@@ -46,6 +57,7 @@ class Pyrallel(cli.Application):
             pass
         return data_files
 
+    # pylint: disable=arguments-differ
     def main(self):
         """
         Run command using provided number of threads
@@ -58,7 +70,7 @@ class Pyrallel(cli.Application):
                 .replace("{threads}", str(self.threads_per_worker)).split()
             return local[program_string[0]][program_string[1:]]()
 
-        for val in map_program():
+        for val in map_program(""):
             print(val)
 
 
