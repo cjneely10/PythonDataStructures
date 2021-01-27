@@ -58,6 +58,7 @@ class Pyrallel(cli.Application):
         return data_files
 
     # pylint: disable=arguments-differ
+    # pylint: disable=no-value-for-parameter
     def main(self):
         """
         Run command using provided number of threads
